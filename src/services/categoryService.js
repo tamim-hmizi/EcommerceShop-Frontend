@@ -1,8 +1,28 @@
 import api from "./api";
 
 export const getCategories = async () => {
-  const res = await api.get("/category");
-  return res.data;
+  try {
+    console.log("Fetching categories");
+    const res = await api.get("/category");
+
+    console.log("Categories API response:", res);
+
+    // Handle different response formats
+    if (res.data && Array.isArray(res.data)) {
+      return { data: res.data };
+    } else if (res.data && res.data.data && Array.isArray(res.data.data)) {
+      return { data: res.data.data };
+    } else if (res.data && res.data.success) {
+      // If success but no data array, return empty array
+      return { data: [] };
+    } else {
+      console.warn("Unexpected categories response format:", res.data);
+      return { data: [] };
+    }
+  } catch (error) {
+    console.error("Error in getCategories:", error.response || error);
+    return { data: [] };
+  }
 };
 
 export const getCategory = async (_id) => {

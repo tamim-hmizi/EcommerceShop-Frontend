@@ -1,13 +1,26 @@
 import { useEffect, useState, useCallback } from "react";
-import {
-  getAllOrders,
-  updateOrderStatusAndPayment,
-} from "../../services/OrderService";
+import { getAllOrders, updateOrderStatusAndPayment } from "../../services/OrderService";
 import Loading from "../Loading";
+import {
+  FiEdit,
+  FiDollarSign,
+  FiTruck,
+  FiCheckCircle,
+  FiClock,
+  FiAlertCircle,
+  FiShoppingCart,
+  FiRefreshCw,
+  FiChevronLeft,
+  FiChevronRight,
+  FiFilter,
+  FiArrowUp,
+  FiArrowDown
+} from "react-icons/fi";
 
 function AdminOrderTable({ token }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [form, setForm] = useState({
     _id: null,
     isPaid: false,
@@ -15,21 +28,116 @@ function AdminOrderTable({ token }) {
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errors, setErrors] = useState({});
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const fetchOrders = useCallback(async () => {
-    setLoading(true);
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [ordersPerPage] = useState(10);
+
+  // Sorting state
+  const [sortField, setSortField] = useState("createdAt");
+  const [sortDirection, setSortDirection] = useState("desc");
+
+  const fetchOrders = useCallback(async (isRefreshing = false) => {
+    if (isRefreshing) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+
     try {
       const response = await getAllOrders(token);
       setOrders(response.data);
     } catch (error) {
       console.error("Error fetching orders:", error);
     }
+
     setLoading(false);
+    setRefreshing(false);
   }, [token]);
+
+  const handleRefresh = () => {
+    fetchOrders(true);
+  };
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
 
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
+
+  // Filter orders based on search query
+  const filteredOrders = orders.filter(order =>
+    order.user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    order.user?.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    order._id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Sort orders based on sort field and direction
+  const sortedOrders = [...filteredOrders].sort((a, b) => {
+    let aValue, bValue;
+
+    // Handle different field types
+    switch(sortField) {
+      case 'totalPrice':
+        aValue = a.totalPrice || 0;
+        bValue = b.totalPrice || 0;
+        break;
+      case 'createdAt':
+        aValue = new Date(a.createdAt).getTime();
+        bValue = new Date(b.createdAt).getTime();
+        break;
+      case 'status':
+        aValue = a.status || '';
+        bValue = b.status || '';
+        break;
+      case 'customer':
+        aValue = a.user?.name || '';
+        bValue = b.user?.name || '';
+        break;
+      default:
+        aValue = a[sortField] || '';
+        bValue = b[sortField] || '';
+    }
+
+    // Compare based on direction
+    if (sortDirection === 'asc') {
+      return aValue > bValue ? 1 : -1;
+    } else {
+      return aValue < bValue ? 1 : -1;
+    }
+  });
+
+  // Get current orders for pagination
+  const indexOfLastOrder = currentPage * ordersPerPage;
+  const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
+  const currentOrders = sortedOrders.slice(indexOfFirstOrder, indexOfLastOrder);
+
+  // Calculate total pages
+  const totalPages = Math.ceil(sortedOrders.length / ordersPerPage);
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Go to next or previous page
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   const handleEdit = (order) => {
     setForm({
@@ -58,128 +166,457 @@ function AdminOrderTable({ token }) {
     }
   };
 
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'Processing':
+        return <span className="badge badge-warning gap-1"><FiClock className="w-3 h-3" /> Processing</span>;
+      case 'Shipped':
+        return <span className="badge badge-info gap-1"><FiTruck className="w-3 h-3" /> Shipped</span>;
+      case 'Delivered':
+        return <span className="badge badge-success gap-1"><FiCheckCircle className="w-3 h-3" /> Delivered</span>;
+      default:
+        return <span className="badge badge-error gap-1"><FiAlertCircle className="w-3 h-3" /> Pending</span>;
+    }
+  };
+
+  const getPaymentBadge = (isPaid) => {
+    return isPaid ? (
+      <span className="badge badge-success gap-1"><FiDollarSign className="w-3 h-3" /> Paid</span>
+    ) : (
+      <span className="badge badge-error gap-1"><FiDollarSign className="w-3 h-3" /> Unpaid</span>
+    );
+  };
+
   return (
-    <div className="container mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4">All Orders</h2>
+    <div className="container mx-auto px-4 py-6">
+      {/* Header Section */}
+      <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex items-center">
+            <div className="bg-primary/10 p-3 rounded-lg mr-4">
+              <FiShoppingCart className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">Order Management</h1>
+              <p className="text-gray-600">View and manage customer orders</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleRefresh}
+              className={`btn btn-circle btn-ghost ${refreshing ? 'animate-spin' : ''}`}
+              disabled={refreshing || loading}
+              title="Refresh orders"
+            >
+              <FiRefreshCw className="h-5 w-5" />
+            </button>
+
+            <div className="form-control w-full md:w-64">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search orders..."
+                  className="input input-bordered w-full pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 absolute left-3 top-3 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Order Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+          <div className="stat bg-base-100 rounded-lg shadow-sm">
+            <div className="stat-figure text-primary">
+              <FiShoppingCart className="w-6 h-6" />
+            </div>
+            <div className="stat-title">Total Orders</div>
+            <div className="stat-value text-primary">{orders.length}</div>
+          </div>
+
+          <div className="stat bg-base-100 rounded-lg shadow-sm">
+            <div className="stat-figure text-success">
+              <FiCheckCircle className="w-6 h-6" />
+            </div>
+            <div className="stat-title">Delivered</div>
+            <div className="stat-value text-success">
+              {orders.filter(order => order.status === 'Delivered').length}
+            </div>
+          </div>
+
+          <div className="stat bg-base-100 rounded-lg shadow-sm">
+            <div className="stat-figure text-warning">
+              <FiClock className="w-6 h-6" />
+            </div>
+            <div className="stat-title">Pending</div>
+            <div className="stat-value text-warning">
+              {orders.filter(order => order.status === 'Pending').length}
+            </div>
+          </div>
+
+          <div className="stat bg-base-100 rounded-lg shadow-sm">
+            <div className="stat-figure text-info">
+              <FiDollarSign className="w-6 h-6" />
+            </div>
+            <div className="stat-title">Total Revenue</div>
+            <div className="stat-value text-info">
+              ${orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0).toFixed(2)}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {loading ? (
-        <div className="flex justify-center items-center">
+        <div className="flex justify-center items-center h-64 bg-white rounded-xl shadow-sm p-6">
           <Loading />
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="table table-zebra w-full">
-            <thead>
-              <tr>
-                <th>User</th>
-                <th>Status</th>
-                <th>Paid</th>
-                <th>Total</th>
-                <th>Created At</th>
-                <th>Items</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => (
-                <tr key={order._id}>
-                  <td>
-                    <div>
-                      <p className="font-semibold">
-                        {order.user?.name || "Unknown"}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {order.user?.email}
-                      </p>
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="table w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort('_id')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Order ID
+                      {sortField === '_id' && (
+                        sortDirection === 'asc' ? <FiArrowUp className="w-3 h-3" /> : <FiArrowDown className="w-3 h-3" />
+                      )}
                     </div>
-                  </td>
-                  <td>{order.status || "Pending"}</td>
-                  <td>{order.isPaid ? "Yes" : "No"}</td>
-                  <td>${order.totalPrice?.toFixed(2) || "0.00"}</td>
-                  <td>{new Date(order.createdAt).toLocaleString()}</td>
-                  <td>
-                    <ul className="space-y-2">
-                      {order.orderItems?.map((item, index) => (
-                        <li key={index} className="flex items-center space-x-2">
-                          <img
-                            src={item.product?.image}
-                            alt={item.product?.name}
-                            className="w-10 h-10 rounded object-cover"
-                          />
-                          <div>
-                            <p>{item.product?.name || "Product"}</p>
-                            <p className="text-sm text-gray-500">
-                              Qty: {item.quantity}
-                            </p>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-sm btn-warning"
-                      onClick={() => handleEdit(order)}
-                    >
-                      Edit
-                    </button>
-                  </td>
+                  </th>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort('customer')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Customer
+                      {sortField === 'customer' && (
+                        sortDirection === 'asc' ? <FiArrowUp className="w-3 h-3" /> : <FiArrowDown className="w-3 h-3" />
+                      )}
+                    </div>
+                  </th>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort('status')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Status
+                      {sortField === 'status' && (
+                        sortDirection === 'asc' ? <FiArrowUp className="w-3 h-3" /> : <FiArrowDown className="w-3 h-3" />
+                      )}
+                    </div>
+                  </th>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort('isPaid')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Payment
+                      {sortField === 'isPaid' && (
+                        sortDirection === 'asc' ? <FiArrowUp className="w-3 h-3" /> : <FiArrowDown className="w-3 h-3" />
+                      )}
+                    </div>
+                  </th>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort('totalPrice')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Total
+                      {sortField === 'totalPrice' && (
+                        sortDirection === 'asc' ? <FiArrowUp className="w-3 h-3" /> : <FiArrowDown className="w-3 h-3" />
+                      )}
+                    </div>
+                  </th>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort('createdAt')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Date
+                      {sortField === 'createdAt' && (
+                        sortDirection === 'asc' ? <FiArrowUp className="w-3 h-3" /> : <FiArrowDown className="w-3 h-3" />
+                      )}
+                    </div>
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {currentOrders.length > 0 ? (
+                  currentOrders.map((order) => (
+                    <tr key={order._id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          <span className="font-mono">#{order._id.slice(-6)}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{order.user?.name || "Guest"}</div>
+                          <div className="text-sm text-gray-500">{order.user?.email || "No email"}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {getStatusBadge(order.status || "Pending")}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {getPaymentBadge(order.isPaid)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-primary">${order.totalPrice?.toFixed(2) || "0.00"}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500">
+                          {new Date(order.createdAt).toLocaleDateString()}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button
+                          onClick={() => handleEdit(order)}
+                          className="btn btn-sm btn-outline btn-primary gap-1"
+                        >
+                          <FiEdit className="w-4 h-4" />
+                          Edit
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="7" className="px-6 py-12 text-center">
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="bg-gray-100 p-4 rounded-full mb-4">
+                          <FiAlertCircle className="h-12 w-12 text-gray-400" />
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-900">No orders found</h3>
+                        <p className="text-gray-500 mt-1">
+                          {searchQuery ? "Try adjusting your search query" : "There are no orders to display"}
+                        </p>
+                        {searchQuery && (
+                          <button
+                            onClick={() => setSearchQuery('')}
+                            className="btn btn-sm btn-outline mt-4"
+                          >
+                            Clear search
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          {sortedOrders.length > 0 && (
+            <div className="px-6 py-4 flex items-center justify-between border-t border-gray-200">
+              <div className="flex-1 flex justify-between sm:hidden">
+                <button
+                  onClick={prevPage}
+                  disabled={currentPage === 1}
+                  className="btn btn-sm btn-outline"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={nextPage}
+                  disabled={currentPage === totalPages}
+                  className="btn btn-sm btn-outline"
+                >
+                  Next
+                </button>
+              </div>
+              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-gray-700">
+                    Showing <span className="font-medium">{indexOfFirstOrder + 1}</span> to{" "}
+                    <span className="font-medium">
+                      {Math.min(indexOfLastOrder, sortedOrders.length)}
+                    </span>{" "}
+                    of <span className="font-medium">{sortedOrders.length}</span> results
+                  </p>
+                </div>
+                <div>
+                  <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    <button
+                      onClick={prevPage}
+                      disabled={currentPage === 1}
+                      className="btn btn-sm btn-ghost"
+                    >
+                      <FiChevronLeft className="h-4 w-4" />
+                    </button>
+
+                    {/* Page numbers */}
+                    {[...Array(totalPages)].map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => paginate(index + 1)}
+                        className={`btn btn-sm ${
+                          currentPage === index + 1 ? 'btn-primary' : 'btn-ghost'
+                        }`}
+                      >
+                        {index + 1}
+                      </button>
+                    ))}
+
+                    <button
+                      onClick={nextPage}
+                      disabled={currentPage === totalPages}
+                      className="btn btn-sm btn-ghost"
+                    >
+                      <FiChevronRight className="h-4 w-4" />
+                    </button>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Modal */}
-      <dialog
-        id="edit_order_modal"
-        className={`modal ${isModalOpen ? "modal-open" : ""}`}
-      >
-        <div className="modal-box relative">
-          <form method="dialog">
-            <button
-              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-              onClick={() => setIsModalOpen(false)}
-            >
-              ✕
-            </button>
-          </form>
-          <h2 className="text-xl font-bold mb-4">Edit Order</h2>
+      {/* Edit Order Modal */}
+      <dialog className={`modal ${isModalOpen ? "modal-open" : ""}`}>
+        <div className="modal-box max-w-md bg-base-100">
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className="btn btn-sm btn-circle absolute right-2 top-2"
+          >
+            ✕
+          </button>
+
+          <div className="flex items-center gap-3 mb-6">
+            <div className="bg-primary/10 p-3 rounded-lg">
+              <FiEdit className="h-6 w-6 text-primary" />
+            </div>
+            <h3 className="font-bold text-xl">Update Order Status</h3>
+          </div>
+
+          {form._id && (
+            <div className="bg-base-200 p-3 rounded-lg mb-6">
+              <div className="text-sm text-gray-500">Order ID</div>
+              <div className="font-mono font-medium">#{form._id.slice(-6)}</div>
+            </div>
+          )}
+
+          {errors.backend && (
+            <div className="alert alert-error mb-6">
+              <div className="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="ml-2">{errors.backend}</span>
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label className="block text-sm font-medium">Is Paid</label>
-              <select
-                className="select select-bordered w-full"
-                value={form.isPaid}
-                onChange={(e) =>
-                  setForm({ ...form, isPaid: e.target.value === "true" })
-                }
-              >
-                <option value="false">No</option>
-                <option value="true">Yes</option>
-              </select>
+            <div className="grid grid-cols-1 gap-6">
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">Payment Status</span>
+                </label>
+                <div className="flex gap-3">
+                  <label className={`flex-1 flex items-center gap-2 border rounded-lg p-3 cursor-pointer transition-colors ${form.isPaid ? 'bg-success/10 border-success' : 'bg-base-100 hover:bg-base-200'}`}>
+                    <input
+                      type="radio"
+                      name="isPaid"
+                      className="radio radio-success"
+                      checked={form.isPaid === true}
+                      onChange={() => setForm({ ...form, isPaid: true })}
+                    />
+                    <div>
+                      <FiDollarSign className="w-5 h-5 text-success" />
+                      <div className="font-medium mt-1">Paid</div>
+                    </div>
+                  </label>
+
+                  <label className={`flex-1 flex items-center gap-2 border rounded-lg p-3 cursor-pointer transition-colors ${!form.isPaid ? 'bg-error/10 border-error' : 'bg-base-100 hover:bg-base-200'}`}>
+                    <input
+                      type="radio"
+                      name="isPaid"
+                      className="radio radio-error"
+                      checked={form.isPaid === false}
+                      onChange={() => setForm({ ...form, isPaid: false })}
+                    />
+                    <div>
+                      <FiDollarSign className="w-5 h-5 text-error" />
+                      <div className="font-medium mt-1">Unpaid</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">Order Status</span>
+                </label>
+                <select
+                  className="select select-bordered w-full"
+                  value={form.status}
+                  onChange={(e) => setForm({ ...form, status: e.target.value })}
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="Processing">Processing</option>
+                  <option value="Shipped">Shipped</option>
+                  <option value="Delivered">Delivered</option>
+                </select>
+
+                {/* Status indicators */}
+                <div className="grid grid-cols-4 gap-2 mt-3">
+                  <div className={`text-center p-2 rounded-lg text-xs ${form.status === 'Pending' ? 'bg-error/10 text-error font-medium' : 'bg-base-200'}`}>
+                    <FiAlertCircle className="w-4 h-4 mx-auto mb-1" />
+                    Pending
+                  </div>
+                  <div className={`text-center p-2 rounded-lg text-xs ${form.status === 'Processing' ? 'bg-warning/10 text-warning font-medium' : 'bg-base-200'}`}>
+                    <FiClock className="w-4 h-4 mx-auto mb-1" />
+                    Processing
+                  </div>
+                  <div className={`text-center p-2 rounded-lg text-xs ${form.status === 'Shipped' ? 'bg-info/10 text-info font-medium' : 'bg-base-200'}`}>
+                    <FiTruck className="w-4 h-4 mx-auto mb-1" />
+                    Shipped
+                  </div>
+                  <div className={`text-center p-2 rounded-lg text-xs ${form.status === 'Delivered' ? 'bg-success/10 text-success font-medium' : 'bg-base-200'}`}>
+                    <FiCheckCircle className="w-4 h-4 mx-auto mb-1" />
+                    Delivered
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium">Order Status</label>
-              <select
-                className="select select-bordered w-full"
-                value={form.status}
-                onChange={(e) => setForm({ ...form, status: e.target.value })}
+            <div className="modal-action mt-8">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="btn btn-outline"
               >
-                <option value="Pending">Pending</option>
-                <option value="Processing">Processing</option>
-                <option value="Shipped">Shipped</option>
-                <option value="Delivered">Delivered</option>
-              </select>
-            </div>
-
-            {errors.backend && (
-              <p className="text-sm text-red-500 mb-4">{errors.backend}</p>
-            )}
-            <div className="flex justify-end">
-              <button type="submit" className="btn btn-primary">
-                Update
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+              >
+                Update Order
               </button>
             </div>
           </form>

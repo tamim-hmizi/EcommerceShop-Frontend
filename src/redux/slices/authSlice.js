@@ -39,6 +39,37 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
+// Update User Profile
+export const updateUserProfile = createAsyncThunk(
+  "auth/updateProfile",
+  async (userData, thunkAPI) => {
+    try {
+      const state = thunkAPI.getState();
+      const { user } = state.auth;
+
+      if (!user || !user.token) {
+        throw new Error("You must be logged in to update your profile");
+      }
+
+      const response = await authService.updateProfile(userData, user.token);
+
+      // Create updated user object with new data but keep the token
+      const updatedUser = {
+        ...user,
+        name: userData.name || user.name,
+        email: userData.email || user.email
+      };
+
+      // Update localStorage
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      return updatedUser;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data?.message || "Error updating profile");
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -65,6 +96,19 @@ const authSlice = createSlice({
       // Logout
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
+      })
+      // Update Profile
+      .addCase(updateUserProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(updateUserProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

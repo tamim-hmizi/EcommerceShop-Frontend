@@ -17,7 +17,7 @@ function SignIn() {
     }
   }, [user, navigate]);
   return (
-    <div className="mt-8 p-6">
+    <div className="py-12 px-4 sm:px-6 lg:px-8 min-h-[80vh] flex items-center justify-center">
       <SignInForm />
     </div>
   );

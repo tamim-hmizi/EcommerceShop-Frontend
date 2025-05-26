@@ -11,8 +11,9 @@ const CategoryTable = ({ token }) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ _id: null, name: "", description: "" });
-  const [errors, setErrors] = useState({}); // For form validation errors
+  const [errors, setErrors] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const fetchCategories = useCallback(async () => {
     setLoading(true);
@@ -31,6 +32,7 @@ const CategoryTable = ({ token }) => {
 
   const handleDelete = async (_id) => {
     await deleteCategory(_id, token);
+    setDeleteConfirm(null);
     fetchCategories();
   };
 
@@ -49,18 +51,16 @@ const CategoryTable = ({ token }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) return; // Only submit if form is valid
+    if (!validateForm()) return;
 
     try {
       if (form._id) {
-        // Update category if form.id exists
         await updateCategory(
           form._id,
           { name: form.name, description: form.description },
           token
         );
       } else {
-        // Create a new category if form.id doesn't exist
         await createCategory(
           { name: form.name, description: form.description },
           token
@@ -71,139 +71,172 @@ const CategoryTable = ({ token }) => {
       fetchCategories();
     } catch (error) {
       console.error("Error saving category:", error);
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        // Handle error message from backend (e.g. unique constraint error)
+      if (error.response?.data?.message) {
         setErrors({ backend: error.response.data.message });
       }
     }
   };
 
   const handleEdit = (category) => {
-    // Set the form to the category details for editing
     setForm(category);
-    setErrors({}); // Clear previous errors
+    setErrors({});
     setIsModalOpen(true);
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex mb-4">
+    <div className="container mx-auto px-4 py-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Category Management</h1>
         <button
           onClick={() => {
             setForm({ _id: null, name: "", description: "" });
-            setErrors({}); // Clear previous errors
+            setErrors({});
             setIsModalOpen(true);
           }}
-          className="btn btn-primary"
+          className="btn btn-primary gap-2"
         >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+          </svg>
           Add Category
         </button>
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center">
+        <div className="flex justify-center items-center h-64">
           <Loading />
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="table table-zebra w-full">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.map((category) => (
-                <tr key={category._id}>
-                  <td>{category.name}</td>
-                  <td>{category.description}</td>
-                  <td>
-                    <button
-                      className="btn btn-sm btn-warning mr-2"
-                      onClick={() => handleEdit(category)} // Use handleEdit for editing
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="btn btn-sm btn-error"
-                      onClick={() => handleDelete(category._id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="table w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {categories.map((category) => (
+                  <tr key={category._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{category.name}</td>
+                    <td className="px-6 py-4 whitespace-normal max-w-xs text-gray-500">{category.description}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="space-x-2">
+                        <button
+                          onClick={() => handleEdit(category)}
+                          className="btn btn-sm btn-outline btn-info"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirm(category._id)}
+                          className="btn btn-sm btn-outline btn-error"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {categories.length === 0 && !loading && (
+            <div className="text-center py-8">
+              <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">No categories</h3>
+              <p className="mt-1 text-sm text-gray-500">Get started by creating a new category.</p>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Dialog Modal */}
-      <dialog
-        id="my_modal_3"
-        className={`modal ${isModalOpen ? "modal-open" : ""}`}
-      >
-        <div className="modal-box relative">
-          <form method="dialog">
-            {/* if there is a button in form, it will close the modal */}
-            <button
-              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-              onClick={() => setIsModalOpen(false)}
-            >
-              ✕
-            </button>
-          </form>
-          <h2 className="text-xl font-bold mb-4">
-            {form._id ? "Edit Category" : "Add Category"}
-          </h2>
+      {/* Add/Edit Modal */}
+      <dialog className={`modal ${isModalOpen ? 'modal-open' : ''}`}>
+        <div className="modal-box max-w-md">
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className="btn btn-sm btn-circle absolute right-2 top-2"
+          >
+            ✕
+          </button>
+          <h3 className="font-bold text-lg mb-4">
+            {form._id ? "Edit Category" : "Add New Category"}
+          </h3>
           <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label className="block text-sm font-medium">Name</label>
+            <div className="form-control mb-4">
+              <label className="label">
+                <span className="label-text font-medium">Name</span>
+              </label>
               <input
                 type="text"
-                className={`input input-bordered w-full ${
-                  errors.name ? "input-error" : ""
-                }`}
+                className={`input input-bordered w-full ${errors.name ? 'input-error' : ''}`}
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                required
+                placeholder="Enter category name"
               />
               {errors.name && (
-                <p className="text-sm text-red-500">{errors.name}</p>
+                <label className="label">
+                  <span className="label-text-alt text-error">{errors.name}</span>
+                </label>
               )}
             </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium">Description</label>
-              <input
-                type="text"
-                className={`input input-bordered w-full ${
-                  errors.description ? "input-error" : ""
-                }`}
+            <div className="form-control mb-6">
+              <label className="label">
+                <span className="label-text font-medium">Description</span>
+              </label>
+              <textarea
+                className={`textarea textarea-bordered w-full ${errors.description ? 'textarea-error' : ''}`}
                 value={form.description}
-                onChange={(e) =>
-                  setForm({ ...form, description: e.target.value })
-                }
-                required
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                placeholder="Enter category description"
+                rows={3}
               />
               {errors.description && (
-                <p className="text-sm text-red-500">{errors.description}</p>
+                <label className="label">
+                  <span className="label-text-alt text-error">{errors.description}</span>
+                </label>
               )}
             </div>
             {errors.backend && (
-              <p className="text-sm text-red-500 mb-4">{errors.backend}</p>
+              <div className="alert alert-error mb-4">
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>{errors.backend}</span>
+                </div>
+              </div>
             )}
-            <div className="flex justify-end space-x-2">
+            <div className="modal-action">
+              <button type="button" onClick={() => setIsModalOpen(false)} className="btn btn-ghost">
+                Cancel
+              </button>
               <button type="submit" className="btn btn-primary">
-                {form._id ? "Update" : "Add"}
+                {form._id ? "Update" : "Add"} Category
               </button>
             </div>
           </form>
+        </div>
+      </dialog>
+
+      {/* Delete Confirmation Modal */}
+      <dialog className={`modal ${deleteConfirm ? 'modal-open' : ''}`}>
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">Confirm Deletion</h3>
+          <p className="py-4">Are you sure you want to delete this category? This action cannot be undone.</p>
+          <div className="modal-action">
+            <button onClick={() => setDeleteConfirm(null)} className="btn btn-ghost">
+              Cancel
+            </button>
+            <button onClick={() => handleDelete(deleteConfirm)} className="btn btn-error">
+              Delete
+            </button>
+          </div>
         </div>
       </dialog>
     </div>

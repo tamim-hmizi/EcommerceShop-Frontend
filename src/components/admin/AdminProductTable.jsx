@@ -1,19 +1,37 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import {
-  getProducts,
-  createProduct,
-  updateProduct,
-  deleteProduct,
-} from "../../services/ProductService";
+import { getProducts, createProduct, updateProduct, deleteProduct } from "../../services/ProductService";
 import { getCategories } from "../../services/categoryService";
-import Loading from "../Loading";
 import api from "../../services/api";
+
+// Import sub-components
+import ProductTableHeader from "./product/ProductTableHeader";
+import ProductTableFilters from "./product/ProductTableFilters";
+import ProductTable from "./product/ProductTable";
+import ProductTablePagination from "./product/ProductTablePagination";
+import ProductFormModal from "./product/ProductFormModal";
+import DeleteConfirmationModal from "./product/DeleteConfirmationModal";
 
 const AdminProductTable = ({ token }) => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [imageURLs, setImageURLs] = useState({});
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [errors, setErrors] = useState({});
+
+  // Search and filtering
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [stockFilter, setStockFilter] = useState("all"); // all, inStock, lowStock, outOfStock
+
+  // Sorting
+  const [sortField, setSortField] = useState("createdAt");
+  const [sortDirection, setSortDirection] = useState("desc");
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [productsPerPage] = useState(10);
 
   const [form, setForm] = useState({
     _id: null,
@@ -23,12 +41,38 @@ const AdminProductTable = ({ token }) => {
     stock: "",
     category: "",
     image: null,
+    previewImage: null
   });
 
   const dialogRef = useRef(null);
+  const deleteDialogRef = useRef(null);
 
   const openModal = () => dialogRef.current?.showModal();
-  const closeModal = () => dialogRef.current?.close();
+  const closeModal = () => {
+    dialogRef.current?.close();
+    setErrors({});
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!form.name || form.name.length < 2) {
+      newErrors.name = "Name must be at least 2 characters";
+    }
+    if (!form.description || form.description.length < 10) {
+      newErrors.description = "Description must be at least 10 characters";
+    }
+    if (!form.price || parseFloat(form.price) <= 0) {
+      newErrors.price = "Price must be greater than 0";
+    }
+    if (!form.stock || parseInt(form.stock) < 0) {
+      newErrors.stock = "Stock cannot be negative";
+    }
+    if (!form.category) {
+      newErrors.category = "Category is required";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -49,8 +93,13 @@ const AdminProductTable = ({ token }) => {
     }
   };
 
-  const fetchProducts = useCallback(async () => {
-    setLoading(true);
+  const fetchProducts = useCallback(async (isRefreshing = false) => {
+    if (isRefreshing) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+
     try {
       const data = await getProducts();
       setProducts(data);
@@ -62,21 +111,138 @@ const AdminProductTable = ({ token }) => {
     } catch (error) {
       console.error("Error fetching products:", error);
     }
+
     setLoading(false);
+    setRefreshing(false);
   }, []);
+
+  const handleRefresh = () => {
+    fetchProducts(true);
+  };
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1); // Reset to first page on search
+  };
+
+  const handleCategoryFilter = (e) => {
+    setCategoryFilter(e.target.value);
+    setCurrentPage(1); // Reset to first page on filter change
+  };
+
+  const handleStockFilter = (value) => {
+    setStockFilter(value);
+    setCurrentPage(1); // Reset to first page on filter change
+  };
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
 
   useEffect(() => {
     fetchCategories();
     fetchProducts();
   }, [fetchCategories, fetchProducts]);
 
+  // Filter products based on search query and filters
+  const filteredProducts = products.filter(product => {
+    // Search filter
+    const matchesSearch =
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (product.category?.name || "").toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Category filter
+    const matchesCategory = categoryFilter === "" || product.category?._id === categoryFilter;
+
+    // Stock filter
+    let matchesStock = true;
+    if (stockFilter === "inStock") {
+      matchesStock = product.stock > 0;
+    } else if (stockFilter === "lowStock") {
+      matchesStock = product.stock > 0 && product.stock <= 10;
+    } else if (stockFilter === "outOfStock") {
+      matchesStock = product.stock === 0;
+    }
+
+    return matchesSearch && matchesCategory && matchesStock;
+  });
+
+  // Sort products
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    let aValue, bValue;
+
+    // Handle different field types
+    switch(sortField) {
+      case 'price':
+        aValue = parseFloat(a.price) || 0;
+        bValue = parseFloat(b.price) || 0;
+        break;
+      case 'stock':
+        aValue = parseInt(a.stock) || 0;
+        bValue = parseInt(b.stock) || 0;
+        break;
+      case 'name':
+        aValue = a.name || '';
+        bValue = b.name || '';
+        break;
+      case 'category':
+        aValue = a.category?.name || '';
+        bValue = b.category?.name || '';
+        break;
+      default:
+        aValue = a[sortField] || '';
+        bValue = b[sortField] || '';
+    }
+
+    // Compare based on direction
+    if (sortDirection === 'asc') {
+      return aValue > bValue ? 1 : -1;
+    } else {
+      return aValue < bValue ? 1 : -1;
+    }
+  });
+
+  // Get current products for pagination
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = sortedProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+
+  // Calculate total pages
+  const totalPages = Math.ceil(sortedProducts.length / productsPerPage);
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Go to next or previous page
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
   const handleDelete = async (_id) => {
     await deleteProduct(_id, token);
+    setDeleteConfirm(null);
     fetchProducts();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) return;
+
     const formData = new FormData();
     formData.append("name", form.name);
     formData.append("description", form.description);
@@ -88,13 +254,56 @@ const AdminProductTable = ({ token }) => {
       formData.append("image", form.image);
     }
 
-    if (form._id) {
-      await updateProduct(form._id, formData, token);
-    } else {
-      await createProduct(formData, token);
-    }
+    try {
+      if (form._id) {
+        await updateProduct(form._id, formData, token);
+      } else {
+        await createProduct(formData, token);
+      }
 
-    closeModal();
+      closeModal();
+      setForm({
+        _id: null,
+        name: "",
+        description: "",
+        price: "",
+        stock: "",
+        category: "",
+        image: null,
+        previewImage: null
+      });
+      fetchProducts();
+    } catch (error) {
+      console.error("Error saving product:", error);
+      if (error.response?.data?.message) {
+        setErrors({ backend: error.response.data.message });
+      }
+    }
+  };
+
+  const handleEdit = (product) => {
+    setForm({
+      ...product,
+      category: product.category?._id || "",
+      image: null,
+      previewImage: imageURLs[product._id] || null
+    });
+    openModal();
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setForm({
+        ...form,
+        image: file,
+        previewImage: previewUrl
+      });
+    }
+  };
+
+  const handleAddProduct = () => {
     setForm({
       _id: null,
       name: "",
@@ -103,183 +312,85 @@ const AdminProductTable = ({ token }) => {
       stock: "",
       category: "",
       image: null,
-    });
-    fetchProducts();
-  };
-
-  const handleEdit = (product) => {
-    setForm({
-      ...product,
-      category: product.category?._id || "",
-      image: null,
+      previewImage: null
     });
     openModal();
   };
 
-  const handleImageChange = (e) => {
-    setForm({ ...form, image: e.target.files[0] });
-  };
-
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex mb-4">
-        <button onClick={openModal} className="btn btn-primary">
-          Add Product
-        </button>
+    <div className="container mx-auto px-4 py-6">
+      {/* Header with stats */}
+      <ProductTableHeader
+        products={products}
+        refreshing={refreshing}
+        loading={loading}
+        handleRefresh={handleRefresh}
+        handleAddProduct={handleAddProduct}
+      />
+
+      {/* Search and filters */}
+      <ProductTableFilters
+        searchQuery={searchQuery}
+        handleSearch={handleSearch}
+        categoryFilter={categoryFilter}
+        handleCategoryFilter={handleCategoryFilter}
+        stockFilter={stockFilter}
+        handleStockFilter={handleStockFilter}
+        categories={categories}
+      />
+
+      {/* Product table */}
+      <ProductTable
+        loading={loading}
+        currentProducts={currentProducts}
+        sortedProducts={sortedProducts}
+        imageURLs={imageURLs}
+        sortField={sortField}
+        sortDirection={sortDirection}
+        handleSort={handleSort}
+        handleEdit={handleEdit}
+        setDeleteConfirm={setDeleteConfirm}
+        searchQuery={searchQuery}
+        categoryFilter={categoryFilter}
+        stockFilter={stockFilter}
+        setSearchQuery={setSearchQuery}
+        setCategoryFilter={setCategoryFilter}
+        setStockFilter={setStockFilter}
+      />
+
+      {/* Pagination */}
+      <div className="mt-4">
+        <ProductTablePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          indexOfFirstProduct={indexOfFirstProduct}
+          indexOfLastProduct={indexOfLastProduct}
+          sortedProducts={sortedProducts}
+          paginate={paginate}
+          nextPage={nextPage}
+          prevPage={prevPage}
+        />
       </div>
 
-      {loading ? (
-        <div className="flex justify-center items-center">
-          <Loading />
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="table table-zebra w-full">
-            <thead>
-              <tr>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Category</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((product) => (
-                <tr key={product._id}>
-                  <td>
-                    {imageURLs[product._id] ? (
-                      <img
-                        src={imageURLs[product._id]}
-                        alt={product.name + " image"}
-                        className="w-20 h-20 object-cover rounded"
-                      />
-                    ) : (
-                      <div className="flex justify-center items-center">
-                        <Loading />
-                      </div>
-                    )}
-                  </td>
-                  <td>{product.name}</td>
-                  <td>{product.description}</td>
-                  <td>${product.price}</td>
-                  <td>{product.stock}</td>
-                  <td>
-                    {product.category ? product.category.name : "No Category"}
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-sm btn-warning mr-2"
-                      onClick={() => handleEdit(product)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="btn btn-sm btn-error"
-                      onClick={() => handleDelete(product._id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {/* Product Form Modal */}
+      <ProductFormModal
+        dialogRef={dialogRef}
+        closeModal={closeModal}
+        form={form}
+        errors={errors}
+        handleSubmit={handleSubmit}
+        setForm={setForm}
+        categories={categories}
+        handleImageChange={handleImageChange}
+      />
 
-      <dialog id="my_modal_3" className="modal" ref={dialogRef}>
-        <div className="modal-box">
-          <form method="dialog">
-            <button
-              type="button"
-              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-              onClick={closeModal}
-            >
-              ✕
-            </button>
-          </form>
-          <h3 className="font-bold text-lg mb-4">
-            {form._id ? "Edit Product" : "Add Product"}
-          </h3>
-          <form onSubmit={handleSubmit} encType="multipart/form-data">
-            <div className="mb-4">
-              <label className="block text-sm font-medium">Name</label>
-              <input
-                type="text"
-                className="input input-bordered w-full"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium">Description</label>
-              <input
-                type="text"
-                className="input input-bordered w-full"
-                value={form.description}
-                onChange={(e) =>
-                  setForm({ ...form, description: e.target.value })
-                }
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium">Price</label>
-              <input
-                type="number"
-                className="input input-bordered w-full"
-                value={form.price}
-                onChange={(e) => setForm({ ...form, price: e.target.value })}
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium">Stock</label>
-              <input
-                type="number"
-                className="input input-bordered w-full"
-                value={form.stock}
-                onChange={(e) => setForm({ ...form, stock: e.target.value })}
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium">Category</label>
-              <select
-                className="input input-bordered w-full"
-                value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
-                required
-              >
-                <option value="">Select Category</option>
-                {categories.map((category) => (
-                  <option key={category._id} value={category._id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium">Image</label>
-              <input
-                type="file"
-                className="input input-bordered w-full"
-                onChange={handleImageChange}
-                accept="image/*"
-              />
-            </div>
-            <div className="flex justify-end">
-              <button type="submit" className="btn btn-primary">
-                {form._id ? "Update" : "Add"}
-              </button>
-            </div>
-          </form>
-        </div>
-      </dialog>
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        deleteDialogRef={deleteDialogRef}
+        deleteConfirm={deleteConfirm}
+        setDeleteConfirm={setDeleteConfirm}
+        handleDelete={handleDelete}
+      />
     </div>
   );
 };
