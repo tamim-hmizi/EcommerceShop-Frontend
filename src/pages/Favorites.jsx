@@ -40,7 +40,7 @@ function Favorites() {
                 const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
                 const imagePath = product.image.startsWith('/') ? product.image : `/${product.image}`;
                 const fullUrl = `${baseUrl}${imagePath}`;
-                
+
                 const response = await api.get(fullUrl, {
                   responseType: "blob",
                 });
@@ -95,13 +95,13 @@ function Favorites() {
   if (!user) {
     return (
       <div className="container mx-auto px-4 py-12">
-        <div className="text-center py-16 bg-gray-50 rounded-xl">
-          <FiAlertCircle className="mx-auto h-16 w-16 text-gray-400 mb-4" />
-          <h2 className="text-2xl font-bold text-gray-700 mb-2">Please Sign In</h2>
-          <p className="text-gray-500 mb-6">You need to be signed in to view your favorites</p>
+        <div className="text-center py-16 bg-base-200 rounded-xl">
+          <FiAlertCircle className="mx-auto h-16 w-16 text-base-content/40 mb-4" />
+          <h2 className="text-2xl font-bold text-base-content mb-2">Please Sign In</h2>
+          <p className="text-base-content/60 mb-6">You need to be signed in to view your favorites</p>
           <Link
             to="/signin"
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+            className="btn btn-primary"
           >
             Sign In
           </Link>
@@ -112,7 +112,7 @@ function Favorites() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold mb-8 text-gray-800">My Favorites</h1>
+      <h1 className="text-3xl font-bold mb-8 text-base-content">My Favorites</h1>
 
       {loading && (
         <div className="flex justify-center py-12">
@@ -121,19 +121,19 @@ function Favorites() {
       )}
 
       {error && (
-        <div className="bg-red-50 p-4 rounded-lg mb-6">
-          <p className="text-red-600">{error}</p>
+        <div className="bg-error/10 p-4 rounded-lg mb-6 border border-error/20">
+          <p className="text-error">{error}</p>
         </div>
       )}
 
       {!loading && favorites.length === 0 && (
-        <div className="text-center py-16 bg-gray-50 rounded-xl">
-          <FiHeart className="mx-auto h-16 w-16 text-gray-400 mb-4" />
-          <h2 className="text-2xl font-bold text-gray-700 mb-2">No Favorites Yet</h2>
-          <p className="text-gray-500 mb-6">You haven't added any products to your favorites</p>
+        <div className="text-center py-16 bg-base-200 rounded-xl">
+          <FiHeart className="mx-auto h-16 w-16 text-base-content/40 mb-4" />
+          <h2 className="text-2xl font-bold text-base-content mb-2">No Favorites Yet</h2>
+          <p className="text-base-content/60 mb-6">You haven't added any products to your favorites</p>
           <Link
             to="/product"
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+            className="btn btn-primary"
           >
             Browse Products
           </Link>
@@ -145,12 +145,12 @@ function Favorites() {
           {favorites.map((product) => (
             <div
               key={product._id}
-              className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+              className="bg-base-100 rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border border-base-300"
             >
-              <div className="relative h-48 bg-gray-100">
+              <div className="relative h-48 bg-base-200">
                 {loadingImages ? (
                   <div className="flex justify-center items-center h-full">
-                    <div className="animate-pulse w-12 h-12 rounded-full bg-gray-200"></div>
+                    <div className="animate-pulse w-12 h-12 rounded-full bg-base-300"></div>
                   </div>
                 ) : (
                   <img
@@ -161,20 +161,20 @@ function Favorites() {
                 )}
                 <button
                   onClick={() => handleRemoveFromFavorites(product._id)}
-                  className="absolute top-2 right-2 p-2 bg-white/80 hover:bg-white rounded-full shadow-sm transition-colors"
+                  className="absolute top-2 right-2 p-2 bg-base-100/80 hover:bg-base-100 rounded-full shadow-sm transition-colors"
                   aria-label="Remove from favorites"
                 >
-                  <FiTrash2 className="w-5 h-5 text-red-500" />
+                  <FiTrash2 className="w-5 h-5 text-error" />
                 </button>
               </div>
               <div className="p-4">
-                <h3 className="font-bold text-lg mb-1 line-clamp-1">{product.name}</h3>
-                <p className="text-gray-500 text-sm mb-3 line-clamp-2">{product.description}</p>
+                <h3 className="font-bold text-lg mb-1 line-clamp-1 text-base-content">{product.name}</h3>
+                <p className="text-base-content/60 text-sm mb-3 line-clamp-2">{product.description}</p>
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-lg">${product.price.toFixed(2)}</span>
+                  <span className="font-bold text-lg text-base-content">${product.price.toFixed(2)}</span>
                   <button
                     onClick={() => handleAddToCart(product)}
-                    className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg transition-colors"
+                    className="btn btn-primary btn-sm gap-1"
                   >
                     <FiShoppingCart className="w-4 h-4" />
                     Add to Cart

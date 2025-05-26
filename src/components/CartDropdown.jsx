@@ -224,7 +224,7 @@ function CartDropdown() {
     <div className="dropdown dropdown-end">
       <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
         <div className="indicator">
-          <FiShoppingCart className="h-5 w-5" />
+          <FiShoppingCart className="h-5 w-5 text-primary" />
           {totalItems > 0 && (
             <span className="badge badge-sm badge-primary indicator-item">
               {totalItems}
@@ -234,10 +234,10 @@ function CartDropdown() {
       </div>
       <div
         tabIndex={0}
-        className="dropdown-content z-[1] mt-3 p-4 shadow-lg bg-white rounded-xl w-80"
+        className="dropdown-content z-[1] mt-3 p-4 shadow-lg bg-base-100 rounded-xl w-80 border border-base-300"
       >
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-bold text-lg">Your Cart</h3>
+          <h3 className="font-bold text-lg text-base-content">Your Cart</h3>
           <button
             className="btn btn-sm btn-circle btn-ghost"
             onClick={() => document.activeElement.blur()} // This will close the dropdown by removing focus
@@ -248,8 +248,8 @@ function CartDropdown() {
 
         {items.length === 0 ? (
           <div className="text-center py-8">
-            <FiShoppingCart className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-            <p className="text-gray-500">Your cart is empty</p>
+            <FiShoppingCart className="mx-auto h-8 w-8 text-base-content/40 mb-2" />
+            <p className="text-base-content/60">Your cart is empty</p>
           </div>
         ) : (
           <>
@@ -261,7 +261,7 @@ function CartDropdown() {
               ) : (
                 items.map((item, i) => (
                   <div key={i} className="flex gap-4 items-center">
-                    <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
+                    <div className="w-16 h-16 bg-base-200 rounded-lg overflow-hidden">
                       {imageURLs[item._id] ? (
                         <img
                           src={imageURLs[item._id]}
@@ -278,21 +278,21 @@ function CartDropdown() {
                           }}
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                          <FiShoppingCart className="text-gray-400" />
+                        <div className="w-full h-full flex items-center justify-center bg-base-200">
+                          <FiShoppingCart className="text-base-content/40" />
                         </div>
                       )}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium line-clamp-1">{item.name}</h4>
-                      <p className="text-sm text-gray-500">${item.price.toFixed(2)} × {item.quantity}</p>
+                      <h4 className="font-medium line-clamp-1 text-base-content">{item.name}</h4>
+                      <p className="text-sm text-base-content/60">${item.price.toFixed(2)} × {item.quantity}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="font-medium">
+                      <div className="font-medium text-base-content">
                         ${(item.price * item.quantity).toFixed(2)}
                       </div>
                       <button
-                        className="text-gray-400 hover:text-red-500 transition-colors"
+                        className="text-base-content/40 hover:text-error transition-colors"
                         onClick={() => {
                           // Remove from local cart
                           dispatch(removeFromCart(item._id));
@@ -315,21 +315,21 @@ function CartDropdown() {
               )}
             </div>
 
-            <div className="border-t border-gray-100 pt-4 mt-4">
+            <div className="border-t border-base-300 pt-4 mt-4">
               <div className="flex justify-between mb-2">
-                <span className="text-gray-600">Subtotal</span>
-                <span className="font-medium">${subtotal.toFixed(2)}</span>
+                <span className="text-base-content/70">Subtotal</span>
+                <span className="font-medium text-base-content">${subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between mb-4">
-                <span className="text-gray-600">Shipping</span>
-                <span className="font-medium">$0.00</span>
+                <span className="text-base-content/70">Shipping</span>
+                <span className="font-medium text-base-content">$0.00</span>
               </div>
-              <div className="flex justify-between font-bold text-lg">
+              <div className="flex justify-between font-bold text-lg text-base-content">
                 <span>Total</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
               <button
-                className="btn btn-sm btn-ghost w-full mt-2 text-gray-500 hover:text-red-500"
+                className="btn btn-sm btn-ghost w-full mt-2 text-base-content/60 hover:text-error"
                 onClick={() => {
                   // Clear local cart
                   dispatch(clearCart());

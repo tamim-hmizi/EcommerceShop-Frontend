@@ -123,9 +123,9 @@ function RegisterForm() {
   };
 
   return (
-    <div className="auth-container max-w-4xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div className="max-w-4xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
       {/* Left side - Illustration */}
-      <div className="hidden md:block bg-gradient-to-br from-green-50 to-indigo-50 rounded-lg overflow-hidden shadow-lg">
+      <div className="hidden md:block bg-gradient-to-br from-success/10 to-primary/10 rounded-lg overflow-hidden shadow-lg">
         <div className="h-full flex items-center justify-center p-6">
           <AuthIllustration type="register" />
         </div>
@@ -134,12 +134,9 @@ function RegisterForm() {
       {/* Right side - Form */}
       <div
         ref={formRef}
-        className="auth-form-container p-8 md:p-10"
+        className="bg-base-100 rounded-2xl shadow-lg p-8 md:p-10 border border-base-300"
       >
-        <div className="auth-decoration auth-decoration-1"></div>
-        <div className="auth-decoration auth-decoration-2"></div>
-
-        <h2 className="auth-title text-3xl font-bold text-center mb-8">Create Account</h2>
+        <h2 className="text-3xl font-bold text-center mb-8 text-base-content">Create Account</h2>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
@@ -148,21 +145,23 @@ function RegisterForm() {
             </div>
           )}
 
-          <div className="auth-input-group">
-            <label htmlFor="name" className="auth-label flex items-center gap-2">
-              <FiUser className="text-primary" />
-              <span>Full Name</span>
+          <div className="form-control">
+            <label htmlFor="name" className="label">
+              <span className="label-text flex items-center gap-2 text-base-content font-medium">
+                <FiUser className="text-primary" />
+                Full Name
+              </span>
             </label>
             <div className="relative">
               <input
                 id="name"
                 type="text"
-                className={`auth-input ${
+                className={`input input-bordered w-full ${
                   formState.name.touched
                     ? formState.name.valid
-                      ? 'auth-input-success'
+                      ? 'input-success'
                       : formState.name.valid === false
-                        ? 'auth-input-error'
+                        ? 'input-error'
                         : ''
                     : ''
                 }`}
@@ -171,26 +170,28 @@ function RegisterForm() {
                 placeholder="John Doe"
               />
               {formState.name.touched && formState.name.valid === false && (
-                <p className="text-xs text-red-500 mt-1">Name must be at least 2 characters</p>
+                <p className="text-xs text-error mt-1">Name must be at least 2 characters</p>
               )}
             </div>
           </div>
 
-          <div className="auth-input-group">
-            <label htmlFor="email" className="auth-label flex items-center gap-2">
-              <FiMail className="text-primary" />
-              <span>Email Address</span>
+          <div className="form-control">
+            <label htmlFor="email" className="label">
+              <span className="label-text flex items-center gap-2 text-base-content font-medium">
+                <FiMail className="text-primary" />
+                Email Address
+              </span>
             </label>
             <div className="relative">
               <input
                 id="email"
                 type="email"
-                className={`auth-input ${
+                className={`input input-bordered w-full ${
                   formState.email.touched
                     ? formState.email.valid
-                      ? 'auth-input-success'
+                      ? 'input-success'
                       : formState.email.valid === false
-                        ? 'auth-input-error'
+                        ? 'input-error'
                         : ''
                     : ''
                 }`}
@@ -199,26 +200,28 @@ function RegisterForm() {
                 placeholder="your@email.com"
               />
               {formState.email.touched && formState.email.valid === false && (
-                <p className="text-xs text-red-500 mt-1">Please enter a valid email address</p>
+                <p className="text-xs text-error mt-1">Please enter a valid email address</p>
               )}
             </div>
           </div>
 
-          <div className="auth-input-group">
-            <label htmlFor="password" className="auth-label flex items-center gap-2">
-              <FiLock className="text-primary" />
-              <span>Password</span>
+          <div className="form-control">
+            <label htmlFor="password" className="label">
+              <span className="label-text flex items-center gap-2 text-base-content font-medium">
+                <FiLock className="text-primary" />
+                Password
+              </span>
             </label>
             <div className="relative">
               <input
                 id="password"
                 type="password"
-                className={`auth-input ${
+                className={`input input-bordered w-full ${
                   formState.password.touched
                     ? formState.password.valid
-                      ? 'auth-input-success'
+                      ? 'input-success'
                       : formState.password.valid === false
-                        ? 'auth-input-error'
+                        ? 'input-error'
                         : ''
                     : ''
                 }`}
@@ -227,26 +230,28 @@ function RegisterForm() {
                 placeholder="••••••••"
               />
               {formState.password.touched && formState.password.valid === false && (
-                <p className="text-xs text-red-500 mt-1">Password must be at least 8 characters</p>
+                <p className="text-xs text-error mt-1">Password must be at least 8 characters</p>
               )}
             </div>
           </div>
 
-          <div className="auth-input-group">
-            <label htmlFor="confirmPassword" className="auth-label flex items-center gap-2">
-              <FiCheckCircle className="text-primary" />
-              <span>Confirm Password</span>
+          <div className="form-control">
+            <label htmlFor="confirmPassword" className="label">
+              <span className="label-text flex items-center gap-2 text-base-content font-medium">
+                <FiCheckCircle className="text-primary" />
+                Confirm Password
+              </span>
             </label>
             <div className="relative">
               <input
                 id="confirmPassword"
                 type="password"
-                className={`auth-input ${
+                className={`input input-bordered w-full ${
                   formState.confirmPassword.touched
                     ? formState.confirmPassword.valid
-                      ? 'auth-input-success'
+                      ? 'input-success'
                       : formState.confirmPassword.valid === false
-                        ? 'auth-input-error'
+                        ? 'input-error'
                         : ''
                     : ''
                 }`}
@@ -255,54 +260,51 @@ function RegisterForm() {
                 placeholder="••••••••"
               />
               {formState.confirmPassword.touched && formState.confirmPassword.valid === false && (
-                <p className="text-xs text-red-500 mt-1">Passwords must match</p>
+                <p className="text-xs text-error mt-1">Passwords must match</p>
               )}
             </div>
           </div>
 
-          <div className="flex items-center">
-            <input
-              id="terms"
-              name="terms"
-              type="checkbox"
-              className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-              required
-            />
-            <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
-              I agree to the <a href="#" className="text-primary hover:text-primary-dark">Terms of Service</a> and <a href="#" className="text-primary hover:text-primary-dark">Privacy Policy</a>
+          <div className="form-control">
+            <label className="label cursor-pointer justify-start gap-3">
+              <input
+                id="terms"
+                name="terms"
+                type="checkbox"
+                className="checkbox checkbox-primary"
+                required
+              />
+              <span className="label-text text-base-content">
+                I agree to the <a href="#" className="link link-primary">Terms of Service</a> and <a href="#" className="link link-primary">Privacy Policy</a>
+              </span>
             </label>
           </div>
 
           <button
             type="submit"
-            className="auth-button"
+            className="btn btn-primary w-full"
             disabled={loading}
           >
-            <span className="flex items-center justify-center gap-2">
-              {loading ? (
-                <>
-                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span>Creating Account...</span>
-                </>
-              ) : (
-                <>
-                  <FiUserPlus className="w-5 h-5" />
-                  <span>Create Account</span>
-                </>
-              )}
-            </span>
+            {loading ? (
+              <>
+                <span className="loading loading-spinner loading-sm"></span>
+                Creating Account...
+              </>
+            ) : (
+              <>
+                <FiUserPlus className="w-5 h-5" />
+                Create Account
+              </>
+            )}
           </button>
         </form>
 
-        <div className="auth-divider">Or</div>
+        <div className="divider">Or</div>
 
         <div className="text-center">
-          <p className="mb-4">
+          <p className="mb-4 text-base-content">
             Already have an account?{" "}
-            <Link to="/signin" className="text-primary font-bold hover:text-primary-dark transition-colors">
+            <Link to="/signin" className="link link-primary font-bold">
               Sign In here
             </Link>
           </p>

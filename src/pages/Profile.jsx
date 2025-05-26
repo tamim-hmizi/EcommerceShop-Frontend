@@ -8,46 +8,49 @@ import Loading from "../components/Loading";
 function Profile() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user, loading, error } = useSelector((state) => state.auth);
-  
+  const { user, loading, error } = useSelector(state => state.auth);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: ""
   });
-  
+
   const [formErrors, setFormErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (!user) {
-      navigate("/signin");
-      return;
-    }
-    
-    if (user.isAdmin) {
-      navigate("/admin");
-      return;
-    }
-    
-    // Initialize form with user data
-    setFormData({
-      name: user.name || "",
-      email: user.email || "",
-      password: "",
-      confirmPassword: ""
-    });
-  }, [user, navigate]);
+  useEffect(
+    () => {
+      if (!user) {
+        navigate("/signin");
+        return;
+      }
 
-  const handleChange = (e) => {
+      if (user.isAdmin) {
+        navigate("/admin");
+        return;
+      }
+
+      // Initialize form with user data
+      setFormData({
+        name: user.name || "",
+        email: user.email || "",
+        password: "",
+        confirmPassword: ""
+      });
+    },
+    [user, navigate]
+  );
+
+  const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-    
+
     // Clear error when user starts typing
     if (formErrors[name]) {
       setFormErrors(prev => ({
@@ -55,7 +58,7 @@ function Profile() {
         [name]: ""
       }));
     }
-    
+
     // Clear success message when user makes changes
     if (successMessage) {
       setSuccessMessage("");
@@ -64,39 +67,39 @@ function Profile() {
 
   const validateForm = () => {
     const errors = {};
-    
+
     if (!formData.name.trim()) {
       errors.name = "Name is required";
     }
-    
+
     if (!formData.email.trim()) {
       errors.email = "Email is required";
     } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
       errors.email = "Email is invalid";
     }
-    
+
     if (formData.password && formData.password.length < 8) {
       errors.password = "Password must be at least 8 characters";
     }
-    
+
     if (formData.password && formData.password !== formData.confirmPassword) {
       errors.confirmPassword = "Passwords do not match";
     }
-    
+
     return errors;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    
+
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       // Only include password if it was provided
       const updateData = {
@@ -104,10 +107,10 @@ function Profile() {
         email: formData.email,
         ...(formData.password ? { password: formData.password } : {})
       };
-      
+
       await dispatch(updateUserProfile(updateData)).unwrap();
       setSuccessMessage("Profile updated successfully");
-      
+
       // Clear password fields after successful update
       setFormData(prev => ({
         ...prev,
@@ -129,39 +132,42 @@ function Profile() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="p-6 sm:p-8 border-b border-gray-100">
-          <h1 className="text-2xl font-bold text-gray-800">My Profile</h1>
-          <p className="text-gray-600 mt-1">Manage your account information</p>
+      <div className="bg-base-100 rounded-xl shadow-sm overflow-hidden border border-base-300">
+        <div className="p-6 sm:p-8 border-b border-base-300">
+          <h1 className="text-2xl font-bold text-base-content">My Profile</h1>
+          <p className="text-base-content/60 mt-1">
+            Manage your account information
+          </p>
         </div>
-        
+
         <div className="p-6 sm:p-8">
-          {error && (
+          {error &&
             <div className="alert alert-error mb-6 flex items-center gap-3">
               <FiAlertCircle className="w-5 h-5" />
-              <span>{error}</span>
-            </div>
-          )}
-          
-          {formErrors.submit && (
+              <span>
+                {error}
+              </span>
+            </div>}
+
+          {formErrors.submit &&
             <div className="alert alert-error mb-6 flex items-center gap-3">
               <FiAlertCircle className="w-5 h-5" />
-              <span>{formErrors.submit}</span>
-            </div>
-          )}
-          
-          {successMessage && (
+              <span>
+                {formErrors.submit}
+              </span>
+            </div>}
+
+          {successMessage &&
             <div className="alert alert-success mb-6">
               {successMessage}
-            </div>
-          )}
-          
+            </div>}
+
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 gap-6">
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text font-medium flex items-center gap-2">
-                    <FiUser className="w-4 h-4" />
+                  <span className="label-text font-medium flex items-center gap-2 text-base-content">
+                    <FiUser className="w-4 h-4 text-primary" />
                     Name
                   </span>
                 </label>
@@ -170,20 +176,23 @@ function Profile() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className={`input input-bordered w-full ${formErrors.name ? 'input-error' : ''}`}
+                  className={`input input-bordered w-full text-base-content ${formErrors.name
+                    ? "input-error"
+                    : ""}`}
                   placeholder="Your name"
                 />
-                {formErrors.name && (
+                {formErrors.name &&
                   <label className="label">
-                    <span className="label-text-alt text-error">{formErrors.name}</span>
-                  </label>
-                )}
+                    <span className="label-text-alt text-error">
+                      {formErrors.name}
+                    </span>
+                  </label>}
               </div>
-              
+
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text font-medium flex items-center gap-2">
-                    <FiMail className="w-4 h-4" />
+                  <span className="label-text font-medium flex items-center gap-2 text-base-content">
+                    <FiMail className="w-4 h-4 text-primary" />
                     Email
                   </span>
                 </label>
@@ -192,20 +201,23 @@ function Profile() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`input input-bordered w-full ${formErrors.email ? 'input-error' : ''}`}
+                  className={`input input-bordered w-full text-base-content ${formErrors.email
+                    ? "input-error"
+                    : ""}`}
                   placeholder="Your email"
                 />
-                {formErrors.email && (
+                {formErrors.email &&
                   <label className="label">
-                    <span className="label-text-alt text-error">{formErrors.email}</span>
-                  </label>
-                )}
+                    <span className="label-text-alt text-error">
+                      {formErrors.email}
+                    </span>
+                  </label>}
               </div>
-              
+
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text font-medium flex items-center gap-2">
-                    <FiLock className="w-4 h-4" />
+                  <span className="label-text font-medium flex items-center gap-2 text-base-content">
+                    <FiLock className="w-4 h-4 text-primary" />
                     New Password (leave blank to keep current)
                   </span>
                 </label>
@@ -214,20 +226,23 @@ function Profile() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`input input-bordered w-full ${formErrors.password ? 'input-error' : ''}`}
+                  className={`input input-bordered w-full text-base-content ${formErrors.password
+                    ? "input-error"
+                    : ""}`}
                   placeholder="New password (optional)"
                 />
-                {formErrors.password && (
+                {formErrors.password &&
                   <label className="label">
-                    <span className="label-text-alt text-error">{formErrors.password}</span>
-                  </label>
-                )}
+                    <span className="label-text-alt text-error">
+                      {formErrors.password}
+                    </span>
+                  </label>}
               </div>
-              
+
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text font-medium flex items-center gap-2">
-                    <FiLock className="w-4 h-4" />
+                  <span className="label-text font-medium flex items-center gap-2 text-base-content">
+                    <FiLock className="w-4 h-4 text-primary" />
                     Confirm New Password
                   </span>
                 </label>
@@ -236,19 +251,22 @@ function Profile() {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={`input input-bordered w-full ${formErrors.confirmPassword ? 'input-error' : ''}`}
+                  className={`input input-bordered w-full text-base-content ${formErrors.confirmPassword
+                    ? "input-error"
+                    : ""}`}
                   placeholder="Confirm new password"
                 />
-                {formErrors.confirmPassword && (
+                {formErrors.confirmPassword &&
                   <label className="label">
-                    <span className="label-text-alt text-error">{formErrors.confirmPassword}</span>
-                  </label>
-                )}
+                    <span className="label-text-alt text-error">
+                      {formErrors.confirmPassword}
+                    </span>
+                  </label>}
               </div>
-              
+
               <div className="form-control mt-4">
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="btn btn-primary gap-2"
                   disabled={isSubmitting}
                 >

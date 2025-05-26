@@ -101,11 +101,11 @@ function MyOrders() {
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
           <div className="relative">
-            <div className="w-20 h-20 border-t-4 border-b-4 border-indigo-500 rounded-full animate-spin"></div>
-            <div className="w-20 h-20 border-t-4 border-indigo-300 rounded-full animate-ping absolute inset-0 opacity-30"></div>
+            <div className="w-20 h-20 border-t-4 border-b-4 border-primary rounded-full animate-spin"></div>
+            <div className="w-20 h-20 border-t-4 border-primary/30 rounded-full animate-ping absolute inset-0 opacity-30"></div>
           </div>
-          <p className="mt-6 text-lg font-medium text-gray-700">Loading your orders...</p>
-          <p className="text-gray-500 mt-2">Please wait while we fetch your order history</p>
+          <p className="mt-6 text-lg font-medium text-base-content">Loading your orders...</p>
+          <p className="text-base-content/60 mt-2">Please wait while we fetch your order history</p>
         </div>
       </div>
     );
@@ -114,23 +114,23 @@ function MyOrders() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
       {/* Modern Header with Glassmorphism Effect */}
-      <div className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 rounded-3xl shadow-xl mb-10 overflow-hidden">
+      <div className="relative bg-gradient-to-r from-primary via-secondary to-primary rounded-3xl shadow-xl mb-10 overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute -right-20 -top-20 w-72 h-72 rounded-full bg-white/20"></div>
-          <div className="absolute -left-20 -bottom-20 w-72 h-72 rounded-full bg-white/20"></div>
-          <div className="absolute right-1/4 bottom-1/3 w-36 h-36 rounded-full bg-white/20"></div>
+          <div className="absolute -right-20 -top-20 w-72 h-72 rounded-full bg-primary-content/20"></div>
+          <div className="absolute -left-20 -bottom-20 w-72 h-72 rounded-full bg-primary-content/20"></div>
+          <div className="absolute right-1/4 bottom-1/3 w-36 h-36 rounded-full bg-primary-content/20"></div>
         </div>
 
         {/* Content */}
         <div className="relative p-8 md:p-10">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="mb-6 md:mb-0">
-              <h2 className="text-3xl md:text-4xl font-bold mb-2 text-white">My Orders</h2>
-              <p className="text-indigo-100">Track and manage your purchase history</p>
+              <h2 className="text-3xl md:text-4xl font-bold mb-2 text-primary-content">My Orders</h2>
+              <p className="text-primary-content/80">Track and manage your purchase history</p>
             </div>
-            <div className="flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl">
-              <FiShoppingBag className="h-8 w-8 text-white" />
+            <div className="flex items-center justify-center w-16 h-16 bg-primary-content/10 backdrop-blur-sm rounded-2xl">
+              <FiShoppingBag className="h-8 w-8 text-primary-content" />
             </div>
           </div>
         </div>
@@ -138,66 +138,66 @@ function MyOrders() {
 
       {/* Order Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <div className="bg-white rounded-2xl shadow-md p-6 border-l-4 border-indigo-500 transform transition-transform hover:scale-105 duration-300">
+        <div className="bg-base-100 rounded-2xl shadow-md p-6 border-l-4 border-primary transform transition-transform hover:scale-105 duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm font-medium uppercase tracking-wider">Total Orders</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">{orders.length}</p>
+              <p className="text-base-content/60 text-sm font-medium uppercase tracking-wider">Total Orders</p>
+              <p className="text-3xl font-bold text-base-content mt-1">{orders.length}</p>
             </div>
-            <div className="bg-indigo-100 p-3 rounded-xl">
-              <FiPackage className="h-7 w-7 text-indigo-600" />
+            <div className="bg-primary/10 p-3 rounded-xl">
+              <FiPackage className="h-7 w-7 text-primary" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-md p-6 border-l-4 border-green-500 transform transition-transform hover:scale-105 duration-300">
+        <div className="bg-base-100 rounded-2xl shadow-md p-6 border-l-4 border-success transform transition-transform hover:scale-105 duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm font-medium uppercase tracking-wider">Completed</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">
+              <p className="text-base-content/60 text-sm font-medium uppercase tracking-wider">Completed</p>
+              <p className="text-3xl font-bold text-base-content mt-1">
                 {orders.filter(order => order.status === "Delivered").length}
               </p>
             </div>
-            <div className="bg-green-100 p-3 rounded-xl">
-              <FiCheckCircle className="h-7 w-7 text-green-600" />
+            <div className="bg-success/10 p-3 rounded-xl">
+              <FiCheckCircle className="h-7 w-7 text-success" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-md p-6 border-l-4 border-blue-500 transform transition-transform hover:scale-105 duration-300">
+        <div className="bg-base-100 rounded-2xl shadow-md p-6 border-l-4 border-info transform transition-transform hover:scale-105 duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm font-medium uppercase tracking-wider">Total Spent</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">
+              <p className="text-base-content/60 text-sm font-medium uppercase tracking-wider">Total Spent</p>
+              <p className="text-3xl font-bold text-base-content mt-1">
                 ${orders.reduce((sum, order) => sum + order.totalPrice, 0).toFixed(2)}
               </p>
             </div>
-            <div className="bg-blue-100 p-3 rounded-xl">
-              <FiDollarSign className="h-7 w-7 text-blue-600" />
+            <div className="bg-info/10 p-3 rounded-xl">
+              <FiDollarSign className="h-7 w-7 text-info" />
             </div>
           </div>
         </div>
       </div>
 
       {orders.length === 0 ? (
-        <div className="text-center bg-white rounded-2xl shadow-lg p-12 max-w-md mx-auto border border-gray-100 transform transition-all duration-300 hover:shadow-xl">
+        <div className="text-center bg-base-100 rounded-2xl shadow-lg p-12 max-w-md mx-auto border border-base-300 transform transition-all duration-300 hover:shadow-xl">
           <div className="relative mx-auto mb-8">
             {/* Animated illustration */}
-            <div className="w-32 h-32 bg-indigo-50 rounded-full flex items-center justify-center mx-auto">
-              <div className="absolute w-32 h-32 bg-indigo-100 rounded-full animate-ping opacity-50"></div>
-              <FiPackage className="h-14 w-14 text-indigo-500 relative z-10" />
+            <div className="w-32 h-32 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+              <div className="absolute w-32 h-32 bg-primary/20 rounded-full animate-ping opacity-50"></div>
+              <FiPackage className="h-14 w-14 text-primary relative z-10" />
             </div>
             {/* Decorative elements */}
-            <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-200 rounded-full"></div>
-            <div className="absolute bottom-0 -left-4 w-8 h-8 bg-indigo-200 rounded-full"></div>
+            <div className="absolute -top-2 -right-2 w-6 h-6 bg-secondary/40 rounded-full"></div>
+            <div className="absolute bottom-0 -left-4 w-8 h-8 bg-primary/40 rounded-full"></div>
           </div>
 
-          <h3 className="text-2xl font-bold text-gray-900 mb-3">No Orders Yet</h3>
-          <p className="text-gray-600 mb-8 max-w-xs mx-auto">Start shopping to build your order history and track your purchases</p>
+          <h3 className="text-2xl font-bold text-base-content mb-3">No Orders Yet</h3>
+          <p className="text-base-content/60 mb-8 max-w-xs mx-auto">Start shopping to build your order history and track your purchases</p>
 
           <button
             onClick={() => navigate("/")}
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium py-3 px-8 rounded-full flex items-center justify-center gap-2 mx-auto shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+            className="btn btn-primary gap-2"
           >
             <FiShoppingCart className="w-5 h-5" />
             <span>Discover Products</span>
@@ -206,41 +206,41 @@ function MyOrders() {
       ) : (
         <div className="space-y-8">
           {orders.map(order => (
-            <div key={order._id} className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            <div key={order._id} className="bg-base-100 rounded-2xl shadow-md border border-base-300 overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
               {/* Order Header with Gradient Accent */}
               <div className="relative">
                 {/* Colored accent based on status */}
                 <div className={`absolute top-0 left-0 w-full h-1 ${
-                  order.status === "Delivered" ? "bg-gradient-to-r from-green-400 to-green-600" :
-                  order.status === "Shipped" ? "bg-gradient-to-r from-blue-400 to-blue-600" :
-                  order.status === "Processing" ? "bg-gradient-to-r from-yellow-400 to-yellow-600" :
-                  "bg-gradient-to-r from-gray-400 to-gray-600"
+                  order.status === "Delivered" ? "bg-gradient-to-r from-success to-success" :
+                  order.status === "Shipped" ? "bg-gradient-to-r from-info to-info" :
+                  order.status === "Processing" ? "bg-gradient-to-r from-warning to-warning" :
+                  "bg-gradient-to-r from-base-content/40 to-base-content/40"
                 }`}></div>
 
-                <div className="bg-gray-50 p-6 pt-7">
+                <div className="bg-base-200 p-6 pt-7">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-lg text-gray-900">
+                        <h3 className="font-bold text-lg text-base-content">
                           Order #{order._id.slice(-8).toUpperCase()}
                         </h3>
                         <div className={`badge ${
-                          order.isPaid ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
-                        } text-xs font-medium px-2 py-1 rounded-full`}>
+                          order.isPaid ? "badge-success" : "badge-warning"
+                        } text-xs font-medium`}>
                           {order.isPaid ? "Paid" : "Payment Pending"}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
+                      <div className="flex items-center gap-2 mt-1 text-sm text-base-content/60">
                         <FiCalendar className="w-4 h-4" />
                         <span>{formatDate(order.createdAt)}</span>
                       </div>
                     </div>
 
                     <div className={`flex items-center gap-2 px-4 py-2 rounded-full shadow-sm ${
-                      order.status === "Delivered" ? "bg-green-50 text-green-700 border border-green-200" :
-                      order.status === "Shipped" ? "bg-blue-50 text-blue-700 border border-blue-200" :
-                      order.status === "Processing" ? "bg-yellow-50 text-yellow-700 border border-yellow-200" :
-                      "bg-gray-50 text-gray-700 border border-gray-200"
+                      order.status === "Delivered" ? "bg-success/10 text-success border border-success/20" :
+                      order.status === "Shipped" ? "bg-info/10 text-info border border-info/20" :
+                      order.status === "Processing" ? "bg-warning/10 text-warning border border-warning/20" :
+                      "bg-base-content/10 text-base-content border border-base-content/20"
                     }`}>
                       {getStatusIcon(order.status)}
                       <span className="font-medium">{order.status}</span>
@@ -249,19 +249,19 @@ function MyOrders() {
                 </div>
               </div>
               <div className="p-6">
-                <h4 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
+                <h4 className="font-medium text-base-content mb-4 flex items-center gap-2">
                   <FiShoppingBag className="w-4 h-4" />
                   <span>Order Items</span>
-                  <span className="ml-2 bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                  <span className="ml-2 bg-primary/10 text-primary text-xs font-medium px-2.5 py-0.5 rounded-full">
                     {order.orderItems.length} {order.orderItems.length === 1 ? 'item' : 'items'}
                   </span>
                 </h4>
 
                 <div className="space-y-4">
                   {order.orderItems.map((item, idx) => (
-                    <div key={idx} className="group flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors duration-200 border border-gray-100 hover:border-gray-200">
+                    <div key={idx} className="group flex items-center gap-4 p-3 rounded-xl hover:bg-base-200 transition-colors duration-200 border border-base-300 hover:border-primary/30">
                       {/* Product Image with Shadow and Hover Effect */}
-                      <div className="w-20 h-20 bg-white rounded-lg overflow-hidden flex-shrink-0 shadow-sm border border-gray-200 group-hover:shadow-md transition-all duration-200">
+                      <div className="w-20 h-20 bg-base-100 rounded-lg overflow-hidden flex-shrink-0 shadow-sm border border-base-300 group-hover:shadow-md transition-all duration-200">
                         {imageURLs[item.product?._id] ? (
                           <img
                             src={imageURLs[item.product._id]}
@@ -269,9 +269,9 @@ function MyOrders() {
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : (
-                          <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-gray-50 to-gray-100 text-gray-400 p-2">
-                            <FiShoppingCart className="w-8 h-8 mb-1 text-indigo-400" />
-                            <div className="text-xs font-medium text-center text-gray-500 line-clamp-1 w-full">
+                          <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-base-200 to-base-300 text-base-content/40 p-2">
+                            <FiShoppingCart className="w-8 h-8 mb-1 text-primary" />
+                            <div className="text-xs font-medium text-center text-base-content/60 line-clamp-1 w-full">
                               {item.product?.name || "Product"}
                             </div>
                           </div>
@@ -280,44 +280,44 @@ function MyOrders() {
 
                       {/* Product Details with Better Typography */}
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 truncate group-hover:text-indigo-600 transition-colors duration-200">
+                        <p className="font-medium text-base-content truncate group-hover:text-primary transition-colors duration-200">
                           {item.product?.name || "Unnamed Product"}
                         </p>
                         <div className="flex items-center gap-4 mt-1">
-                          <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                          <span className="text-sm text-base-content/60 bg-base-200 px-2 py-1 rounded-full">
                             Qty: {item.quantity}
                           </span>
-                          <span className="text-sm text-gray-500">
+                          <span className="text-sm text-base-content/60">
                             ${(item.product?.price || 0).toFixed(2)} per unit
                           </span>
                         </div>
                       </div>
 
                       {/* Price with Highlight */}
-                      <div className="font-bold text-gray-900 bg-indigo-50 px-3 py-1.5 rounded-lg">
+                      <div className="font-bold text-base-content bg-primary/10 px-3 py-1.5 rounded-lg">
                         ${((item.product?.price || 0) * item.quantity).toFixed(2)}
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="bg-gray-50 p-6 border-t border-gray-100">
+              <div className="bg-base-200 p-6 border-t border-base-300">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div className="flex items-center gap-6">
                     {/* Order Summary */}
                     <div>
-                      <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Items</p>
-                      <p className="font-medium text-gray-900 mt-1">
+                      <p className="text-xs text-base-content/60 uppercase tracking-wider font-medium">Items</p>
+                      <p className="font-medium text-base-content mt-1">
                         {order.orderItems.reduce((sum, item) => sum + item.quantity, 0)}
                       </p>
                     </div>
 
-                    <div className="h-10 border-l border-gray-200"></div>
+                    <div className="h-10 border-l border-base-300"></div>
 
                     {/* Shipping Address */}
                     <div>
-                      <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Shipping Address</p>
-                      <p className="font-medium text-gray-900 flex items-center gap-1 mt-1">
+                      <p className="text-xs text-base-content/60 uppercase tracking-wider font-medium">Shipping Address</p>
+                      <p className="font-medium text-base-content flex items-center gap-1 mt-1">
                         <FiMapPin className="w-3 h-3" />
                         <span className="truncate max-w-[200px]">
                           {order.shippingAddress?.address || "No address provided"}
@@ -327,9 +327,9 @@ function MyOrders() {
                   </div>
 
                   {/* Total Price */}
-                  <div className="bg-indigo-50 px-6 py-3 rounded-lg shadow-sm">
-                    <p className="text-xs text-indigo-700 uppercase tracking-wider font-medium">Total Amount</p>
-                    <p className="text-2xl font-bold text-indigo-700 mt-1">
+                  <div className="bg-primary/10 px-6 py-3 rounded-lg shadow-sm">
+                    <p className="text-xs text-primary uppercase tracking-wider font-medium">Total Amount</p>
+                    <p className="text-2xl font-bold text-primary mt-1">
                       ${order.totalPrice.toFixed(2)}
                     </p>
                   </div>

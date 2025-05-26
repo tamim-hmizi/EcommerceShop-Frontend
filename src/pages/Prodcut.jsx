@@ -141,14 +141,14 @@ function ProductList() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-base-200 min-h-screen">
       {/* Mobile filter dialog */}
       {mobileFiltersOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="fixed inset-0 bg-black/25" onClick={() => setMobileFiltersOpen(false)} />
-          <div className="fixed inset-y-0 left-0 w-72 bg-white shadow-xl p-4 overflow-y-auto">
+          <div className="fixed inset-y-0 left-0 w-72 bg-base-100 shadow-xl p-4 overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-medium text-gray-900">Filters</h2>
+              <h2 className="text-lg font-medium text-base-content">Filters</h2>
               <button
                 type="button"
                 className="btn btn-ghost btn-sm"
@@ -161,11 +161,11 @@ function ProductList() {
             <div className="space-y-6">
               {/* Mobile Categories */}
               <div>
-                <h3 className="font-medium text-gray-900 mb-2">Categories</h3>
+                <h3 className="font-medium text-base-content mb-2">Categories</h3>
                 <ul className="space-y-2">
                   <li>
                     <button
-                      className={`w-full text-left px-3 py-2 rounded-md ${activeCategory === "all" ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                      className={`w-full text-left px-3 py-2 rounded-md ${activeCategory === "all" ? 'bg-primary text-primary-content' : 'text-base-content/70 hover:bg-base-200'}`}
                       onClick={() => handleCategoryClick("all")}
                     >
                       All Categories
@@ -174,7 +174,7 @@ function ProductList() {
                   {categories.map((cat) => (
                     <li key={cat._id}>
                       <button
-                        className={`w-full text-left px-3 py-2 rounded-md ${activeCategory === cat._id ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                        className={`w-full text-left px-3 py-2 rounded-md ${activeCategory === cat._id ? 'bg-primary text-primary-content' : 'text-base-content/70 hover:bg-base-200'}`}
                         onClick={() => handleCategoryClick(cat._id)}
                       >
                         {cat.name}
@@ -186,9 +186,9 @@ function ProductList() {
 
               {/* Mobile Price Range */}
               <div>
-                <h3 className="font-medium text-gray-900 mb-2">Price Range</h3>
+                <h3 className="font-medium text-base-content mb-2">Price Range</h3>
                 <div className="px-2">
-                  <div className="flex justify-between mb-2 text-sm text-gray-500">
+                  <div className="flex justify-between mb-2 text-sm text-base-content/60">
                     <span>${priceRange[0]}</span>
                     <span>${priceRange[1]}</span>
                   </div>
@@ -215,7 +215,7 @@ function ProductList() {
 
               {/* Mobile Sort Options */}
               <div>
-                <h3 className="font-medium text-gray-900 mb-2">Sort By</h3>
+                <h3 className="font-medium text-base-content mb-2">Sort By</h3>
                 <div className="space-y-2">
                   {[
                     { value: "featured", label: "Featured" },
@@ -225,7 +225,7 @@ function ProductList() {
                   ].map((option) => (
                     <button
                       key={option.value}
-                      className={`w-full text-left px-3 py-2 rounded-md ${sortBy === option.value ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                      className={`w-full text-left px-3 py-2 rounded-md ${sortBy === option.value ? 'bg-primary text-primary-content' : 'text-base-content/70 hover:bg-base-200'}`}
                       onClick={() => setSortBy(option.value)}
                     >
                       {option.label}
@@ -252,8 +252,8 @@ function ProductList() {
         {/* Page header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <div className="mb-4 md:mb-0">
-            <h1 className="text-3xl font-bold text-gray-900">Our Products</h1>
-            <p className="mt-2 text-gray-600">
+            <h1 className="text-3xl font-bold text-base-content">Our Products</h1>
+            <p className="mt-2 text-base-content/70">
               {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'} available
             </p>
           </div>
@@ -262,12 +262,12 @@ function ProductList() {
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1 max-w-md">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FiSearch className="h-5 w-5 text-gray-400" />
+                <FiSearch className="h-5 w-5 text-base-content/40" />
               </div>
               <input
                 type="text"
                 placeholder="Search products..."
-                className="input input-bordered w-full pl-10"
+                className="input input-bordered w-full pl-10 bg-base-100 text-base-content placeholder:text-base-content/50"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -275,16 +275,16 @@ function ProductList() {
             <div className="flex gap-2">
               <button
                 type="button"
-                className="btn btn-outline"
+                className="btn btn-outline bg-base-100 text-base-content border-base-300 hover:bg-base-200 hover:text-base-content hover:border-base-content"
                 onClick={handleRefresh}
                 disabled={isRefreshing}
               >
-                <FiRefreshCw className={`w-5 h-5 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <FiRefreshCw className={`w-5 h-5 mr-2 text-base-content ${isRefreshing ? 'animate-spin' : ''}`} />
                 {isRefreshing ? 'Refreshing...' : 'Refresh'}
               </button>
               <button
                 type="button"
-                className="btn btn-outline lg:hidden"
+                className="btn btn-outline lg:hidden bg-base-100 text-base-content border-base-300 hover:bg-base-200"
                 onClick={() => setMobileFiltersOpen(true)}
               >
                 <FiFilter className="w-5 h-5 mr-2" />
@@ -295,11 +295,11 @@ function ProductList() {
         </div>
 
         {/* Sort and View Controls - Desktop */}
-        <div className="hidden lg:flex justify-between items-center mb-6 bg-white p-4 rounded-lg shadow-sm">
+        <div className="hidden lg:flex justify-between items-center mb-6 bg-base-100 p-4 rounded-lg shadow-sm">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-500">Sort by:</span>
+            <span className="text-sm font-medium text-base-content/70">Sort by:</span>
             <select
-              className="select select-bordered select-sm"
+              className="select select-bordered select-sm bg-base-100 text-base-content"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
@@ -313,14 +313,14 @@ function ProductList() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <button
-                className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100'}`}
+                className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-primary text-primary-content' : 'text-base-content/60 hover:bg-base-200'}`}
                 onClick={() => setViewMode('grid')}
                 aria-label="Grid view"
               >
                 <FiGrid className="w-5 h-5" />
               </button>
               <button
-                className={`p-2 rounded-md ${viewMode === 'list' ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100'}`}
+                className={`p-2 rounded-md ${viewMode === 'list' ? 'bg-primary text-primary-content' : 'text-base-content/60 hover:bg-base-200'}`}
                 onClick={() => setViewMode('list')}
                 aria-label="List view"
               >
@@ -328,7 +328,7 @@ function ProductList() {
               </button>
             </div>
 
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-base-content/60">
               Showing <span className="font-medium">{filteredProducts.length}</span> of <span className="font-medium">{products.length}</span> products
             </span>
           </div>
@@ -337,8 +337,8 @@ function ProductList() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Desktop filters */}
           <aside className="hidden lg:block w-72 shrink-0">
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 sticky top-8">
-              <h2 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
+            <div className="bg-base-100 p-6 rounded-lg shadow-sm border border-base-300 sticky top-8">
+              <h2 className="font-medium text-base-content mb-4 flex items-center gap-2">
                 <FiSliders className="w-5 h-5 text-primary" />
                 Filters
               </h2>
@@ -346,14 +346,14 @@ function ProductList() {
               <div className="space-y-8">
                 {/* Categories */}
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                  <h3 className="font-medium text-base-content mb-3 flex items-center gap-2">
                     <FiTag className="w-4 h-4 text-primary" />
                     Categories
                   </h3>
                   <ul className="space-y-2">
                     <li>
                       <button
-                        className={`w-full text-left px-3 py-2 rounded-md ${activeCategory === "all" ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                        className={`w-full text-left px-3 py-2 rounded-md ${activeCategory === "all" ? 'bg-primary text-primary-content' : 'text-base-content/70 hover:bg-base-200'}`}
                         onClick={() => handleCategoryClick("all")}
                       >
                         All Categories
@@ -362,7 +362,7 @@ function ProductList() {
                     {categories.map((cat) => (
                       <li key={cat._id}>
                         <button
-                          className={`w-full text-left px-3 py-2 rounded-md ${activeCategory === cat._id ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                          className={`w-full text-left px-3 py-2 rounded-md ${activeCategory === cat._id ? 'bg-primary text-primary-content' : 'text-base-content/70 hover:bg-base-200'}`}
                           onClick={() => handleCategoryClick(cat._id)}
                         >
                           {cat.name}
@@ -374,12 +374,12 @@ function ProductList() {
 
                 {/* Price Range */}
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                  <h3 className="font-medium text-base-content mb-3 flex items-center gap-2">
                     <FiShoppingBag className="w-4 h-4 text-primary" />
                     Price Range
                   </h3>
                   <div className="px-2">
-                    <div className="flex justify-between mb-2 text-sm text-gray-500">
+                    <div className="flex justify-between mb-2 text-sm text-base-content/60">
                       <span>${priceRange[0]}</span>
                       <span>${priceRange[1]}</span>
                     </div>
@@ -420,12 +420,12 @@ function ProductList() {
           {/* Product grid */}
           <main className="flex-1">
             {filteredProducts.length === 0 ? (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-12 text-center">
-                <div className="mx-auto h-24 w-24 text-gray-400 mb-4">
+              <div className="bg-base-100 rounded-lg shadow-sm border border-base-300 p-12 text-center">
+                <div className="mx-auto h-24 w-24 text-base-content/40 mb-4">
                   <FiX className="w-full h-full" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-1">No products found</h3>
-                <p className="text-gray-500 mb-4">
+                <h3 className="text-lg font-medium text-base-content mb-1">No products found</h3>
+                <p className="text-base-content/60 mb-4">
                   Try adjusting your search or filter to find what you're looking for.
                 </p>
                 <button
@@ -446,7 +446,7 @@ function ProductList() {
                 ) : (
                   <div className="space-y-6">
                     {filteredProducts.map((product) => (
-                      <div key={product._id} className="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col md:flex-row">
+                      <div key={product._id} className="bg-base-100 rounded-xl shadow-sm overflow-hidden flex flex-col md:flex-row">
                         <div className="md:w-1/3 h-64 md:h-auto">
                           <img
                             src={product.image ? product.image : "https://via.placeholder.com/300"}
@@ -456,23 +456,23 @@ function ProductList() {
                         </div>
                         <div className="p-6 md:w-2/3 flex flex-col">
                           <div className="mb-auto">
-                            <span className="text-xs font-medium text-indigo-600 uppercase tracking-wider">
+                            <span className="text-xs font-medium text-primary uppercase tracking-wider">
                               {product.category?.name || 'Uncategorized'}
                             </span>
-                            <h3 className="font-bold text-xl text-gray-900 mt-1">{product.name}</h3>
-                            <p className="text-gray-600 mt-2">{product.description}</p>
+                            <h3 className="font-bold text-xl text-base-content mt-1">{product.name}</h3>
+                            <p className="text-base-content/70 mt-2">{product.description}</p>
                           </div>
                           <div className="flex items-center justify-between mt-4">
                             <div className="flex flex-col">
                               <div className="flex items-center">
-                                <span className="text-2xl font-bold text-gray-900">${product.price.toFixed(2)}</span>
+                                <span className="text-2xl font-bold text-base-content">${product.price.toFixed(2)}</span>
                                 {product.originalPrice && (
-                                  <span className="text-sm text-gray-400 line-through ml-2">
+                                  <span className="text-sm text-base-content/40 line-through ml-2">
                                     ${product.originalPrice.toFixed(2)}
                                   </span>
                                 )}
                               </div>
-                              <span className="text-sm text-gray-500">{product.stock} in stock</span>
+                              <span className="text-sm text-base-content/60">{product.stock} in stock</span>
                             </div>
                             <button className="btn btn-primary">
                               <FiShoppingBag className="w-4 h-4 mr-2" />

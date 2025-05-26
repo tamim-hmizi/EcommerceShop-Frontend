@@ -35,7 +35,7 @@ const RatingStars = ({ rating = 4.5 }) => {
   return (
     <div className="flex items-center gap-1">
       {stars}
-      <span className="text-xs text-gray-500 ml-1">({Math.round(rating * 10) / 10})</span>
+      <span className="text-xs text-base-content/60 ml-1">({Math.round(rating * 10) / 10})</span>
     </div>
   );
 };
@@ -202,16 +202,16 @@ function ProductCard({ product }) {
   return (
     <>
       <div
-        className="group relative bg-white rounded-xl shadow-[0_5px_15px_rgba(0,0,0,0.05)] overflow-hidden transition-all duration-300 hover:shadow-[0_10px_25px_rgba(0,0,0,0.1)] hover:-translate-y-1"
+        className="group relative bg-base-100 rounded-xl shadow-[0_5px_15px_rgba(0,0,0,0.05)] overflow-hidden transition-all duration-300 hover:shadow-[0_10px_25px_rgba(0,0,0,0.1)] hover:-translate-y-1"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Product Image */}
         <div className="relative overflow-hidden h-72">
           {loadingImage ? (
-            <div className="flex justify-center items-center w-full h-full bg-gray-50">
+            <div className="flex justify-center items-center w-full h-full bg-base-200">
               <div className="animate-pulse flex flex-col items-center">
-                <div className="w-16 h-16 rounded-full bg-gray-200 mb-2"></div>
+                <div className="w-16 h-16 rounded-full bg-base-300 mb-2"></div>
                 <Loading />
               </div>
             </div>
@@ -233,29 +233,29 @@ function ProductCard({ product }) {
               {/* Quick actions on hover */}
               <div className={`absolute inset-0 bg-black/5 backdrop-blur-[2px] flex items-center justify-center gap-4 transition-all duration-300 ${isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <button
-                  className="bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-md transition-all hover:scale-110 hover:shadow-lg"
+                  className="bg-base-100/90 hover:bg-base-100 text-base-content p-3 rounded-full shadow-md transition-all hover:scale-110 hover:shadow-lg"
                   onClick={() => setShowQuickView(true)}
                   aria-label="Quick view"
                 >
                   <FiEye className="w-5 h-5" />
                 </button>
                 <button
-                  className="bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-md transition-all hover:scale-110 hover:shadow-lg"
+                  className="bg-base-100/90 hover:bg-base-100 text-base-content p-3 rounded-full shadow-md transition-all hover:scale-110 hover:shadow-lg"
                   onClick={() => handleAddToCart(1)}
                   aria-label="Add to cart"
                 >
                   <FiShoppingCart className="w-5 h-5" />
                 </button>
                 <button
-                  className={`${isFavorite ? 'bg-red-50 text-red-500' : 'bg-white/90 text-gray-800'}
-                    hover:bg-white p-3 rounded-full shadow-md transition-all hover:scale-110 hover:shadow-lg
+                  className={`${isFavorite ? 'bg-error/10 text-error' : 'bg-base-100/90 text-base-content'}
+                    hover:bg-base-100 p-3 rounded-full shadow-md transition-all hover:scale-110 hover:shadow-lg
                     ${favoriteAnimating ? 'animate-heartbeat' : ''}`}
                   onClick={handleToggleFavorite}
                   disabled={favoriteLoading}
                   aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
                 >
                   {isFavorite ? (
-                    <FaHeart className="w-5 h-5 text-red-500" />
+                    <FaHeart className="w-5 h-5 text-error" />
                   ) : (
                     <FiHeart className="w-5 h-5" />
                   )}
@@ -273,7 +273,7 @@ function ProductCard({ product }) {
             </span>
           )}
           {product.stock === 0 && (
-            <span className="bg-gray-800 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+            <span className="bg-neutral text-neutral-content text-xs font-bold px-3 py-1 rounded-full shadow-sm">
               Sold Out
             </span>
           )}
@@ -288,8 +288,8 @@ function ProductCard({ product }) {
         <div className="p-6">
           {/* Category & Name */}
           <div className="mb-2">
-            <span className="text-xs font-medium text-indigo-600 uppercase tracking-wider">{product.category?.name || 'Uncategorized'}</span>
-            <h3 className="font-bold text-lg text-gray-900 line-clamp-1 mt-1 group-hover:text-indigo-700 transition-colors">{product.name}</h3>
+            <span className="text-xs font-medium text-primary uppercase tracking-wider">{product.category?.name || 'Uncategorized'}</span>
+            <h3 className="font-bold text-lg text-base-content line-clamp-1 mt-1 group-hover:text-primary transition-colors">{product.name}</h3>
           </div>
 
           {/* Rating */}
@@ -298,28 +298,28 @@ function ProductCard({ product }) {
           </div>
 
           {/* Description */}
-          <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
+          <p className="text-base-content/70 text-sm mb-4 line-clamp-2">{product.description}</p>
 
           {/* Quantity Controls */}
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center border border-gray-200 rounded-full overflow-hidden shadow-sm">
+            <div className="flex items-center border border-base-300 rounded-full overflow-hidden shadow-sm bg-base-100">
               <button
                 onClick={decrement}
-                className="text-sm font-bold px-3 py-1 hover:bg-gray-100 transition-colors"
+                className="text-sm font-bold px-3 py-1 hover:bg-base-200 transition-colors text-base-content disabled:opacity-50"
                 disabled={quantity <= 1}
               >
                 −
               </button>
-              <span className="px-3 font-medium">{quantity}</span>
+              <span className="px-3 font-medium text-base-content">{quantity}</span>
               <button
                 onClick={increment}
-                className="text-sm font-bold px-3 py-1 hover:bg-gray-100 transition-colors"
+                className="text-sm font-bold px-3 py-1 hover:bg-base-200 transition-colors text-base-content disabled:opacity-50"
                 disabled={quantity >= product.stock}
               >
                 +
               </button>
             </div>
-            <span className={`text-xs font-medium ${product.stock === 0 ? 'text-red-500' : product.stock < 5 ? 'text-amber-500' : 'text-gray-500'}`}>
+            <span className={`text-xs font-medium ${product.stock === 0 ? 'text-error' : product.stock < 5 ? 'text-warning' : 'text-base-content/60'}`}>
               {product.stock === 0 ? 'Out of stock' : product.stock < 5 ? `Only ${product.stock} left` : `${product.stock} in stock`}
             </span>
           </div>
@@ -328,19 +328,19 @@ function ProductCard({ product }) {
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
               <div className="flex items-center">
-                <span className="text-xl font-bold text-gray-900">${product.price.toFixed(2)}</span>
+                <span className="text-xl font-bold text-base-content">${product.price.toFixed(2)}</span>
                 {product.originalPrice && (
-                  <span className="text-sm text-gray-400 line-through ml-2">${product.originalPrice.toFixed(2)}</span>
+                  <span className="text-sm text-base-content/40 line-through ml-2">${product.originalPrice.toFixed(2)}</span>
                 )}
               </div>
               {product.originalPrice && (
-                <span className="text-xs text-green-600 font-medium">
+                <span className="text-xs text-success font-medium">
                   Save ${(product.originalPrice - product.price).toFixed(2)}
                 </span>
               )}
             </div>
             <button
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-full shadow-sm transition-all duration-200 flex items-center gap-2 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-primary hover:bg-primary-focus text-primary-content font-medium py-2 px-4 rounded-full shadow-sm transition-all duration-200 flex items-center gap-2 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={() => handleAddToCart(quantity)}
               disabled={product.stock === 0}
             >
