@@ -12,6 +12,36 @@ import { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import api from "../services/api";
 
+// Inline image utility functions to avoid import issues
+const createSmallPlaceholder = (text) => {
+  const svg = `
+    <svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100%" height="100%" fill="#f3f4f6"/>
+      <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="12"
+            fill="#6b7280" text-anchor="middle" dominant-baseline="middle">${text}</text>
+    </svg>
+  `;
+  return `data:image/svg+xml;base64,${btoa(svg)}`;
+};
+
+const constructImageUrl = (imagePath) => {
+  if (!imagePath) return null;
+  if (imagePath.startsWith('http')) return imagePath;
+
+  const envApiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
+  if (imagePath.startsWith('/uploads/')) {
+    return `${envApiUrl}${imagePath}`;
+  } else if (imagePath.startsWith('/api/uploads/')) {
+    const pathWithoutApi = imagePath.replace('/api', '');
+    return `${envApiUrl}${pathWithoutApi}`;
+  } else if (imagePath.startsWith('uploads/')) {
+    return `${envApiUrl}/${imagePath}`;
+  } else {
+    return `${envApiUrl}/uploads/${imagePath}`;
+  }
+};
+
 function CartDropdown() {
   const { items } = useSelector((state) => state.cart);
   const { user } = useSelector((state) => state.auth);
@@ -43,8 +73,8 @@ function CartDropdown() {
 
         // Process items one by one to avoid overwhelming the server
         for (const item of items) {
-          // Skip if there's no image path or no item ID
-          if (!item.image || !item._id) continue;
+          // Skip if there's no item ID
+          if (!item._id) continue;
 
           // Skip if we already have this image cached
           if (currentImageURLs[item._id]) {
@@ -53,33 +83,37 @@ function CartDropdown() {
           }
 
           try {
-            // Handle both absolute and relative image paths
-            let imagePath;
-            if (item.image.startsWith('http')) {
-              imagePath = item.image;
-            } else if (item.image.startsWith('/uploads')) {
-              // Backend serves uploads at /api/uploads, so construct the correct path
-              imagePath = `${api.defaults.baseURL}${item.image}`;
+            if (item.image) {
+              // Use the utility function to construct the correct image URL
+              const imagePath = constructImageUrl(item.image);
+
+              if (imagePath) {
+                console.log(`Fetching image for ${item.name} from:`, imagePath);
+
+                try {
+                  // Use axios for consistency with other components
+                  const response = await api.get(imagePath, {
+                    responseType: "blob",
+                  });
+                  const blobUrl = URL.createObjectURL(response.data);
+                  newImageURLs[item._id] = blobUrl;
+                } catch (imageError) {
+                  console.warn(`Failed to load image from ${imagePath}:`, imageError.message);
+                  // If image loading fails, use placeholder
+                  newImageURLs[item._id] = createSmallPlaceholder(item.name || 'Product');
+                }
+              } else {
+                // No valid image path, use placeholder
+                newImageURLs[item._id] = createSmallPlaceholder(item.name || 'Product');
+              }
             } else {
-              // For relative paths, add the full API base URL
-              imagePath = `${api.defaults.baseURL}${item.image}`;
+              // No image provided, use placeholder
+              newImageURLs[item._id] = createSmallPlaceholder(item.name || 'Product');
             }
-
-            console.log(`Fetching image for ${item.name} from:`, imagePath);
-
-            // Use fetch instead of axios for better blob handling
-            const response = await fetch(imagePath);
-            if (!response.ok) {
-              throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
-            }
-
-            const blob = await response.blob();
-            const blobUrl = URL.createObjectURL(blob);
-            newImageURLs[item._id] = blobUrl;
           } catch (error) {
-            console.error(`Error fetching image for ${item.name} (${item._id}):`, error);
-            // Use a fallback or placeholder instead of null
-            newImageURLs[item._id] = null;
+            console.error(`Error processing image for ${item.name} (${item._id}):`, error);
+            // Use a placeholder instead of null for failed images
+            newImageURLs[item._id] = createSmallPlaceholder(item.name || 'Product');
           }
         }
 
@@ -126,11 +160,34 @@ function CartDropdown() {
 
     setIsPlacingOrder(true);
 
+    // Debug: Log cart items to understand their structure
+    console.log("Cart items for checkout:", items);
+
     // Validate cart items before creating order
     const validItems = items.filter(item => {
-      const isValid = item._id && typeof item._id === 'string' && item._id.length === 24;
+      // Check if item has required fields
+      const hasId = item._id || item.product;
+      const hasName = item.name;
+      const hasPrice = typeof item.price === 'number' && item.price > 0;
+      const hasQuantity = typeof item.quantity === 'number' && item.quantity > 0;
+
+      const isValid = hasId && hasName && hasPrice && hasQuantity;
+
+      // Debug: Log validation details for each item
+      if (!isValid) {
+        console.warn("Invalid cart item:", {
+          item,
+          hasId,
+          hasName,
+          hasPrice,
+          hasQuantity
+        });
+      }
+
       return isValid;
     });
+
+    console.log("Valid items after filtering:", validItems);
 
     if (validItems.length === 0) {
       toast.error("No valid items in cart. Please try adding products again.");
@@ -153,8 +210,11 @@ function CartDropdown() {
             : parseInt(item.quantity, 10) || 1
         );
 
+        // Use either _id or product field for the product ID
+        const productId = item._id || item.product;
+
         return {
-          product: item._id, // This should now always be valid
+          product: productId,
           quantity: quantity
         };
       }),
@@ -262,26 +322,16 @@ function CartDropdown() {
                 items.map((item, i) => (
                   <div key={i} className="flex gap-4 items-center">
                     <div className="w-16 h-16 bg-base-200 rounded-lg overflow-hidden">
-                      {imageURLs[item._id] ? (
-                        <img
-                          src={imageURLs[item._id]}
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            console.error(`Error loading image for ${item.name}`);
-                            e.target.onerror = null; // Prevent infinite error loop
-                            e.target.style.display = 'none'; // Hide the broken image
-                            e.target.parentNode.classList.add('flex', 'items-center', 'justify-center');
-                            const fallback = document.createElement('div');
-                            fallback.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>';
-                            e.target.parentNode.appendChild(fallback);
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-base-200">
-                          <FiShoppingCart className="text-base-content/40" />
-                        </div>
-                      )}
+                      <img
+                        src={imageURLs[item._id] || createSmallPlaceholder(item.name || 'Product')}
+                        alt={`${item.name} product image`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          console.error(`Error loading image for ${item.name}`);
+                          e.target.onerror = null; // Prevent infinite error loop
+                          e.target.src = createSmallPlaceholder(item.name || 'Product');
+                        }}
+                      />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-medium line-clamp-1 text-base-content">{item.name}</h4>

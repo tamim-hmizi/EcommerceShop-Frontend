@@ -9,8 +9,6 @@ import {
   FiFilter,
   FiX,
   FiSearch,
-  FiGrid,
-  FiList,
   FiShoppingBag,
   FiTag,
   FiSliders,
@@ -29,7 +27,6 @@ function ProductList() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const [viewMode, setViewMode] = useState("grid"); // grid or list
   const [sortBy, setSortBy] = useState("featured"); // featured, price-low, price-high, newest
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -121,7 +118,6 @@ function ProductList() {
     setSearchQuery("");
     setSortBy("featured");
     setPriceRange([0, 1000]);
-    setViewMode("grid");
   };
 
   // Handle manual refresh of products
@@ -294,7 +290,7 @@ function ProductList() {
           </div>
         </div>
 
-        {/* Sort and View Controls - Desktop */}
+        {/* Sort Controls - Desktop */}
         <div className="hidden lg:flex justify-between items-center mb-6 bg-base-100 p-4 rounded-lg shadow-sm">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-base-content/70">Sort by:</span>
@@ -310,28 +306,9 @@ function ProductList() {
             </select>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <button
-                className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-primary text-primary-content' : 'text-base-content/60 hover:bg-base-200'}`}
-                onClick={() => setViewMode('grid')}
-                aria-label="Grid view"
-              >
-                <FiGrid className="w-5 h-5" />
-              </button>
-              <button
-                className={`p-2 rounded-md ${viewMode === 'list' ? 'bg-primary text-primary-content' : 'text-base-content/60 hover:bg-base-200'}`}
-                onClick={() => setViewMode('list')}
-                aria-label="List view"
-              >
-                <FiList className="w-5 h-5" />
-              </button>
-            </div>
-
-            <span className="text-sm text-base-content/60">
-              Showing <span className="font-medium">{filteredProducts.length}</span> of <span className="font-medium">{products.length}</span> products
-            </span>
-          </div>
+          <span className="text-sm text-base-content/60">
+            Showing <span className="font-medium">{filteredProducts.length}</span> of <span className="font-medium">{products.length}</span> products
+          </span>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
@@ -436,55 +413,11 @@ function ProductList() {
                 </button>
               </div>
             ) : (
-              <>
-                {viewMode === 'grid' ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-                    {filteredProducts.map((product) => (
-                      <ProductCard key={product._id} product={product} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    {filteredProducts.map((product) => (
-                      <div key={product._id} className="bg-base-100 rounded-xl shadow-sm overflow-hidden flex flex-col md:flex-row">
-                        <div className="md:w-1/3 h-64 md:h-auto">
-                          <img
-                            src={product.image ? product.image : "https://via.placeholder.com/300"}
-                            alt={product.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="p-6 md:w-2/3 flex flex-col">
-                          <div className="mb-auto">
-                            <span className="text-xs font-medium text-primary uppercase tracking-wider">
-                              {product.category?.name || 'Uncategorized'}
-                            </span>
-                            <h3 className="font-bold text-xl text-base-content mt-1">{product.name}</h3>
-                            <p className="text-base-content/70 mt-2">{product.description}</p>
-                          </div>
-                          <div className="flex items-center justify-between mt-4">
-                            <div className="flex flex-col">
-                              <div className="flex items-center">
-                                <span className="text-2xl font-bold text-base-content">${product.price.toFixed(2)}</span>
-                                {product.originalPrice && (
-                                  <span className="text-sm text-base-content/40 line-through ml-2">
-                                    ${product.originalPrice.toFixed(2)}
-                                  </span>
-                                )}
-                              </div>
-                              <span className="text-sm text-base-content/60">{product.stock} in stock</span>
-                            </div>
-                            <button className="btn btn-primary">
-                              <FiShoppingBag className="w-4 h-4 mr-2" />
-                              Add to Cart
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+                {filteredProducts.map((product) => (
+                  <ProductCard key={product._id} product={product} />
+                ))}
+              </div>
             )}
           </main>
         </div>
