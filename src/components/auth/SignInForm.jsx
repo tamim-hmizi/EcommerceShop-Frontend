@@ -4,7 +4,7 @@ import { loginUser, resetError } from "../../redux/slices/authSlice";
 import { Link } from "react-router-dom";
 import AuthIllustration from "./AuthIllustration";
 import "../../styles/auth.css";
-import { FiMail, FiLock, FiLogIn, FiUser } from "react-icons/fi";
+import { FiMail, FiLock, FiLogIn, FiUser, FiUserPlus } from "react-icons/fi";
 
 function SignInForm() {
   const [email, setEmail] = useState("");
@@ -163,18 +163,18 @@ function SignInForm() {
 
           <button
             type="submit"
-            className="btn btn-primary w-full"
+            className="btn btn-primary w-full h-12 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-primary hover:border-primary-focus hover:scale-[1.02] focus:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2"
             disabled={loading}
           >
             {loading ? (
               <>
-                <span className="loading loading-spinner loading-sm"></span>
-                Signing In...
+                <span className="loading loading-spinner loading-md"></span>
+                <span className="ml-2">Signing In...</span>
               </>
             ) : (
               <>
                 <FiLogIn className="w-5 h-5" />
-                Sign In
+                <span className="ml-2">Sign In</span>
               </>
             )}
           </button>
@@ -184,11 +184,15 @@ function SignInForm() {
 
         <div className="text-center">
           <p className="mb-4 text-base-content">
-            Don't have an account?{" "}
-            <Link to="/register" className="link link-primary font-bold">
-              Register here
-            </Link>
+            Don't have an account?
           </p>
+          <Link
+            to="/register"
+            className="btn btn-outline btn-secondary w-full gap-2 shadow-md hover:shadow-lg transition-all duration-300 font-semibold border-2 hover:scale-[1.02] focus:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:ring-offset-2"
+          >
+            <FiUserPlus className="w-4 h-4" />
+            Register Here
+          </Link>
         </div>
       </div>
 

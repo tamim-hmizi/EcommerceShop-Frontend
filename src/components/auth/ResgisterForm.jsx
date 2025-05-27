@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import AuthIllustration from "./AuthIllustration";
 import "../../styles/auth.css";
-import { FiMail, FiLock, FiUser, FiUserPlus, FiCheckCircle } from "react-icons/fi";
+import { FiMail, FiLock, FiUser, FiUserPlus, FiCheckCircle, FiLogIn } from "react-icons/fi";
 
 function RegisterForm() {
   const navigate = useNavigate();
@@ -303,11 +303,15 @@ function RegisterForm() {
 
         <div className="text-center">
           <p className="mb-4 text-base-content">
-            Already have an account?{" "}
-            <Link to="/signin" className="link link-primary font-bold">
-              Sign In here
-            </Link>
+            Already have an account?
           </p>
+          <Link
+            to="/signin"
+            className="btn btn-outline btn-primary w-full gap-2 shadow-md hover:shadow-lg transition-all duration-300 font-semibold border-2 hover:scale-[1.02] focus:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2"
+          >
+            <FiLogIn className="w-4 h-4" />
+            Sign In Here
+          </Link>
         </div>
       </div>
     </div>

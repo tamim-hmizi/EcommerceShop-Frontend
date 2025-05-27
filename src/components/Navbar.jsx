@@ -184,10 +184,10 @@ function Navbar() {
                 </div>
               : <Link
                   to="/signin"
-                  className="btn btn-primary btn-sm md:btn-md rounded-full px-5 gap-2 shadow-sm hover:shadow transition-all"
+                  className="btn btn-ghost btn-circle hover:bg-base-200 transition-colors"
+                  title="Sign In"
                 >
-                  <FiUser className="w-4 h-4" />
-                  Sign In
+                  <FiUser className="w-5 h-5 text-base-content" />
                 </Link>}
 
             {/* Mobile Menu Button */}
@@ -258,6 +258,32 @@ function Navbar() {
                 </Link>
               )}
             </nav>
+
+            {/* Sign In Button for Mobile (when not authenticated) */}
+            {!user && (
+              <div className="border-t border-base-300 pt-3 mt-3">
+                <Link
+                  to="/signin"
+                  className="btn btn-primary w-full gap-2 shadow-md hover:shadow-lg transition-all duration-300 font-semibold"
+                >
+                  <FiUser className="w-4 h-4" />
+                  Sign In
+                </Link>
+              </div>
+            )}
+
+            {/* Logout Button for Mobile (when authenticated) */}
+            {user && (
+              <div className="border-t border-base-300 pt-3 mt-3">
+                <button
+                  onClick={handleLogout}
+                  className="btn btn-outline btn-error w-full gap-2 hover:btn-error transition-all duration-300"
+                >
+                  <FiLogOut className="w-4 h-4" />
+                  Logout
+                </button>
+              </div>
+            )}
 
             {/* Theme Toggle for Mobile */}
             <div className="border-t border-base-300 pt-3 mt-3">
