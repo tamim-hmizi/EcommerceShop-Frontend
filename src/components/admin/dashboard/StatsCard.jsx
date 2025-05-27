@@ -7,7 +7,7 @@ const StatsCard = ({ icon, title, value, change, isCurrency = false, color = 'in
     ? `$${value.toLocaleString()}`
     : value.toLocaleString();
 
-  // Color variants
+  // Color variants with better theme support
   const colorVariants = {
     indigo: 'from-indigo-500 to-indigo-600',
     green: 'from-emerald-500 to-emerald-600',
@@ -18,23 +18,33 @@ const StatsCard = ({ icon, title, value, change, isCurrency = false, color = 'in
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden">
-      <div className={`bg-gradient-to-r ${colorVariants[color]} p-4 text-white`}>
-        <div className="flex items-center justify-between">
-          <div className="p-2 bg-white/20 rounded-lg">
-            {icon}
+    <div className="admin-card overflow-hidden group">
+      <div className={`bg-gradient-to-r ${colorVariants[color]} p-6 text-white relative`}>
+        {/* Background pattern */}
+        <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+              {icon}
+            </div>
+            <div className={`flex items-center ${isPositive ? 'text-green-200' : 'text-red-200'} text-sm font-semibold`}>
+              {isPositive ? (
+                <FiArrowUp className="mr-1 h-4 w-4" />
+              ) : (
+                <FiArrowDown className="mr-1 h-4 w-4" />
+              )}
+              {Math.abs(change)}%
+            </div>
           </div>
-          <div className={`flex items-center ${isPositive ? 'text-green-300' : 'text-red-300'} text-sm font-medium`}>
-            {isPositive ? (
-              <FiArrowUp className="mr-1 h-4 w-4" />
-            ) : (
-              <FiArrowDown className="mr-1 h-4 w-4" />
-            )}
-            {Math.abs(change)}%
-          </div>
+
+          <h3 className="text-white/90 text-sm font-medium uppercase tracking-wide mb-2">
+            {title}
+          </h3>
+          <p className="text-3xl font-bold text-white">
+            {formattedValue}
+          </p>
         </div>
-        <h3 className="mt-2 text-white/90 text-sm font-medium">{title}</h3>
-        <p className="text-3xl font-bold mt-1 text-white">{formattedValue}</p>
       </div>
     </div>
   );

@@ -4,21 +4,27 @@ import { doughnutOptions } from './chartOptions';
 
 const OrderStatusChart = ({ orderStatusData, stats }) => {
   return (
-    <div className="bg-white rounded-xl shadow-md p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="font-medium text-gray-800">Order Status</h3>
-        <div className="flex items-center space-x-2">
-          <div className="flex items-center">
-            <span className="w-3 h-3 rounded-full bg-amber-500 mr-1"></span>
-            <span className="text-xs text-gray-500">Pending: {stats.pendingOrders}</span>
+    <div className="admin-card p-6">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 gap-4">
+        <h3 className="text-lg font-semibold text-base-content">Order Status</h3>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center bg-base-200 px-3 py-1 rounded-full">
+            <span className="w-3 h-3 rounded-full bg-amber-500 mr-2"></span>
+            <span className="text-xs font-medium text-base-content">
+              Pending: {stats.pendingOrders || 0}
+            </span>
           </div>
-          <div className="flex items-center">
-            <span className="w-3 h-3 rounded-full bg-indigo-500 mr-1"></span>
-            <span className="text-xs text-gray-500">Processing: {stats.processingOrders}</span>
+          <div className="flex items-center bg-base-200 px-3 py-1 rounded-full">
+            <span className="w-3 h-3 rounded-full bg-indigo-500 mr-2"></span>
+            <span className="text-xs font-medium text-base-content">
+              Processing: {stats.processingOrders || 0}
+            </span>
           </div>
-          <div className="flex items-center">
-            <span className="w-3 h-3 rounded-full bg-emerald-500 mr-1"></span>
-            <span className="text-xs text-gray-500">Delivered: {stats.deliveredOrders}</span>
+          <div className="flex items-center bg-base-200 px-3 py-1 rounded-full">
+            <span className="w-3 h-3 rounded-full bg-emerald-500 mr-2"></span>
+            <span className="text-xs font-medium text-base-content">
+              Delivered: {stats.deliveredOrders || 0}
+            </span>
           </div>
         </div>
       </div>

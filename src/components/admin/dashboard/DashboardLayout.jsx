@@ -28,14 +28,14 @@ const DashboardLayout = ({
 }) => {
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-base-100">
         <div className="p-6 md:p-8">
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="bg-white rounded-xl shadow-md p-6 h-32 animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-                  <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+                <div key={i} className="admin-card p-6 h-32 animate-pulse">
+                  <div className="h-4 bg-base-300 rounded w-1/2 mb-4"></div>
+                  <div className="h-8 bg-base-300 rounded w-3/4"></div>
                 </div>
               ))}
             </div>
@@ -46,7 +46,7 @@ const DashboardLayout = ({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-base-100">
       <div className="p-6 md:p-8">
         <div className="max-w-7xl mx-auto">
           {/* Header with welcome message and time filter */}

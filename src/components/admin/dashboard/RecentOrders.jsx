@@ -2,31 +2,51 @@ import React from 'react';
 import { FiAlertCircle } from "react-icons/fi";
 
 const RecentOrders = ({ recentOrders, pendingOrders }) => {
+  const getStatusBadgeClass = (status) => {
+    const statusLower = status.toLowerCase();
+    switch (statusLower) {
+      case 'delivered':
+        return 'badge-success';
+      case 'shipped':
+        return 'badge-info';
+      case 'processing':
+        return 'badge-primary';
+      default:
+        return 'badge-warning';
+    }
+  };
+
   return (
-    <div className="bg-white rounded-xl shadow-md p-6">
+    <div className="admin-card p-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="font-medium text-gray-800">Recent Orders</h3>
+        <h3 className="text-lg font-semibold text-base-content">Recent Orders</h3>
         <div className="flex items-center">
-          <span className="badge badge-primary">{pendingOrders} pending</span>
+          <span className="badge badge-primary badge-lg">
+            {pendingOrders || 0} pending
+          </span>
         </div>
       </div>
       <div className="overflow-hidden">
-        {recentOrders.length > 0 ? (
-          <div className="space-y-4">
+        {recentOrders && recentOrders.length > 0 ? (
+          <div className="space-y-3">
             {recentOrders.map(order => (
-              <div key={order._id} className="flex items-center justify-between p-4 border-b hover:bg-gray-50 transition-colors rounded-lg">
+              <div
+                key={order._id}
+                className="flex items-center justify-between p-4 border border-base-300 hover:bg-base-200 transition-all duration-200 rounded-lg group"
+              >
                 <div>
-                  <p className="font-medium">#{order._id.slice(-6)}</p>
-                  <p className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</p>
+                  <p className="font-semibold text-base-content">
+                    #{order._id.slice(-6)}
+                  </p>
+                  <p className="text-sm text-base-content/60">
+                    {new Date(order.createdAt).toLocaleDateString()}
+                  </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium">${order.totalPrice.toLocaleString()}</p>
-                  <span className={`badge badge-sm ${
-                    order.status.toLowerCase() === 'delivered' ? 'bg-emerald-100 text-emerald-800' :
-                    order.status.toLowerCase() === 'shipped' ? 'bg-blue-100 text-blue-800' :
-                    order.status.toLowerCase() === 'processing' ? 'bg-indigo-100 text-indigo-800' :
-                    'bg-amber-100 text-amber-800'
-                  }`}>
+                  <p className="font-semibold text-base-content">
+                    ${order.totalPrice.toLocaleString()}
+                  </p>
+                  <span className={`badge badge-sm ${getStatusBadgeClass(order.status)}`}>
                     {order.status}
                   </span>
                 </div>
@@ -34,9 +54,10 @@ const RecentOrders = ({ recentOrders, pendingOrders }) => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 text-gray-500">
-            <FiAlertCircle className="mx-auto h-8 w-8 mb-2" />
-            No recent orders
+          <div className="text-center py-12 text-base-content/60">
+            <FiAlertCircle className="mx-auto h-12 w-12 mb-4 opacity-50" />
+            <p className="text-lg font-medium">No recent orders</p>
+            <p className="text-sm">Orders will appear here once customers start placing them</p>
           </div>
         )}
       </div>

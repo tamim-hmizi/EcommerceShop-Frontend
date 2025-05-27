@@ -4,10 +4,10 @@ import TimeFilter from './TimeFilter';
 
 const DashboardHeader = ({ userName, timeFilter, onTimeFilterChange, onRefresh, refreshing }) => {
   return (
-    <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+    <div className="admin-header flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 p-6 rounded-lg">
       <div>
-        <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Welcome back, {userName || 'Admin'}!</p>
+        <h1 className="text-3xl font-bold text-base-content">Dashboard</h1>
+        <p className="text-base-content/70 mt-1">Welcome back, {userName || 'Admin'}!</p>
       </div>
 
       <div className="flex items-center gap-4">
@@ -18,8 +18,9 @@ const DashboardHeader = ({ userName, timeFilter, onTimeFilterChange, onRefresh, 
 
         <button
           onClick={onRefresh}
-          className="p-2 rounded-lg bg-white shadow-sm hover:shadow-md transition-all text-gray-600 hover:text-indigo-600"
+          className="btn btn-ghost btn-circle hover:bg-primary/10 hover:text-primary transition-all duration-200"
           disabled={refreshing}
+          title="Refresh dashboard data"
         >
           <FiRefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
         </button>

@@ -17,15 +17,15 @@ const ProductTableHeader = ({
   handleAddProduct
 }) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+    <div className="admin-header p-6 rounded-lg mb-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center">
           <div className="bg-primary/10 p-3 rounded-lg mr-4">
             <FiPackage className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">Product Management</h1>
-            <p className="text-gray-600">Manage your store's product inventory</p>
+            <h1 className="text-2xl font-bold text-base-content">Product Management</h1>
+            <p className="text-base-content/70">Manage your store's product inventory</p>
           </div>
         </div>
 
@@ -51,41 +51,57 @@ const ProductTableHeader = ({
 
       {/* Product Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-        <div className="stat bg-base-100 rounded-lg shadow-sm">
-          <div className="stat-figure text-primary">
-            <FiBox className="w-6 h-6" />
-          </div>
-          <div className="stat-title">Total Products</div>
-          <div className="stat-value text-primary">{products ? products.length : 0}</div>
-        </div>
-
-        <div className="stat bg-base-100 rounded-lg shadow-sm">
-          <div className="stat-figure text-success">
-            <FiCheckCircle className="w-6 h-6" />
-          </div>
-          <div className="stat-title">In Stock</div>
-          <div className="stat-value text-success">
-            {products ? products.filter(product => product.stock > 0).length : 0}
+        <div className="admin-card p-4 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm text-base-content/70">Total Products</div>
+              <div className="text-2xl font-bold text-primary">{products ? products.length : 0}</div>
+            </div>
+            <div className="text-primary">
+              <FiBox className="w-8 h-8" />
+            </div>
           </div>
         </div>
 
-        <div className="stat bg-base-100 rounded-lg shadow-sm">
-          <div className="stat-figure text-warning">
-            <FiAlertCircle className="w-6 h-6" />
-          </div>
-          <div className="stat-title">Low Stock</div>
-          <div className="stat-value text-warning">
-            {products ? products.filter(product => product.stock > 0 && product.stock <= 10).length : 0}
+        <div className="admin-card p-4 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm text-base-content/70">In Stock</div>
+              <div className="text-2xl font-bold text-success">
+                {products ? products.filter(product => product.stock > 0).length : 0}
+              </div>
+            </div>
+            <div className="text-success">
+              <FiCheckCircle className="w-8 h-8" />
+            </div>
           </div>
         </div>
 
-        <div className="stat bg-base-100 rounded-lg shadow-sm">
-          <div className="stat-figure text-error">
-            <FiShoppingBag className="w-6 h-6" />
+        <div className="admin-card p-4 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm text-base-content/70">Low Stock</div>
+              <div className="text-2xl font-bold text-warning">
+                {products ? products.filter(product => product.stock > 0 && product.stock <= 10).length : 0}
+              </div>
+            </div>
+            <div className="text-warning">
+              <FiAlertCircle className="w-8 h-8" />
+            </div>
           </div>
-          <div className="stat-title">Out of Stock</div>
-          <div className="stat-value text-error">
-            {products ? products.filter(product => product.stock === 0).length : 0}
+        </div>
+
+        <div className="admin-card p-4 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm text-base-content/70">Out of Stock</div>
+              <div className="text-2xl font-bold text-error">
+                {products ? products.filter(product => product.stock === 0).length : 0}
+              </div>
+            </div>
+            <div className="text-error">
+              <FiShoppingBag className="w-8 h-8" />
+            </div>
           </div>
         </div>
       </div>

@@ -15,10 +15,10 @@ const TimeFilter = ({ currentFilter, onChange }) => {
         <button
           key={filter.id}
           onClick={() => onChange(filter.id)}
-          className={`px-3 py-1.5 rounded-lg transition-colors ${
+          className={`px-3 py-2 rounded-lg font-medium transition-all duration-200 ${
             currentFilter === filter.id
-              ? 'bg-indigo-600 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              ? 'bg-primary text-primary-content shadow-md'
+              : 'bg-base-200 text-base-content hover:bg-base-300 hover:shadow-sm'
           }`}
         >
           {filter.label}

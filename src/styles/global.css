@@ -18,7 +18,7 @@
   --color-secondary-light: #34d399;
   --color-secondary-light-rgb: 52, 211, 153;
 
-  /* Neutral Colors */
+  /* Light Theme Colors */
   --color-bg: #f9fafb;
   --color-bg-rgb: 249, 250, 251;
   --color-card: #ffffff;
@@ -64,6 +64,155 @@
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-full: 9999px;
+}
+
+/* Dark Theme Variables */
+[data-theme="dark"] {
+  /* Dark Theme Colors */
+  --color-bg: #1f2937;
+  --color-bg-rgb: 31, 41, 55;
+  --color-card: #374151;
+  --color-card-rgb: 55, 65, 81;
+  --color-text: #f9fafb;
+  --color-text-rgb: 249, 250, 251;
+  --color-text-light: #d1d5db;
+  --color-text-light-rgb: 209, 213, 219;
+  --color-border: #4b5563;
+  --color-border-rgb: 75, 85, 99;
+}
+
+/* Theme-aware utility classes */
+.bg-theme {
+  background-color: var(--color-bg);
+}
+
+.bg-card-theme {
+  background-color: var(--color-card);
+}
+
+.text-theme {
+  color: var(--color-text);
+}
+
+.text-theme-light {
+  color: var(--color-text-light);
+}
+
+.border-theme {
+  border-color: var(--color-border);
+}
+
+/* Enhanced admin-specific styles */
+.admin-card {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.admin-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.admin-sidebar {
+  background: linear-gradient(180deg, var(--color-card) 0%, var(--color-bg) 100%);
+  border-right: 1px solid var(--color-border);
+}
+
+.admin-nav-item {
+  color: var(--color-text-light);
+  transition: all var(--transition-fast);
+  border-radius: var(--radius-md);
+}
+
+.admin-nav-item:hover {
+  background-color: rgba(var(--color-primary-rgb), 0.1);
+  color: var(--color-primary);
+  transform: translateX(2px);
+}
+
+.admin-nav-item.active {
+  background-color: var(--color-primary);
+  color: white;
+  font-weight: 600;
+}
+
+.admin-header {
+  background-color: var(--color-card);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.admin-table {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.admin-table th {
+  background-color: rgba(var(--color-primary-rgb), 0.05);
+  color: var(--color-text);
+  font-weight: 600;
+  border-bottom: 1px solid var(--color-border);
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-table td {
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  padding: 1rem 1.5rem;
+  white-space: nowrap;
+}
+
+.admin-table tr:hover {
+  background-color: rgba(var(--color-primary-rgb), 0.02);
+}
+
+/* Enhanced dark theme support */
+[data-theme="dark"] .admin-card {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .admin-header {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .admin-table {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .admin-table th {
+  background-color: rgba(var(--color-primary-rgb), 0.1);
+}
+
+/* Better button contrast in dark mode */
+[data-theme="dark"] .btn-outline {
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .btn-outline:hover {
+  background-color: var(--color-hover);
+  border-color: var(--color-primary);
+}
+
+/* Enhanced search input styling */
+.admin-search {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.admin-search:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
 }
 
 /* Base Styles */

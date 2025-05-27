@@ -190,15 +190,15 @@ function AdminOrderTable({ token }) {
   return (
     <div className="container mx-auto px-4 py-6">
       {/* Header Section */}
-      <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+      <div className="admin-header p-6 rounded-lg mb-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="flex items-center">
             <div className="bg-primary/10 p-3 rounded-lg mr-4">
               <FiShoppingCart className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">Order Management</h1>
-              <p className="text-gray-600">View and manage customer orders</p>
+              <h1 className="text-2xl font-bold text-base-content">Order Management</h1>
+              <p className="text-base-content/70">View and manage customer orders</p>
             </div>
           </div>
 
@@ -223,7 +223,7 @@ function AdminOrderTable({ token }) {
                 />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 absolute left-3 top-3 text-gray-400"
+                  className="h-5 w-5 absolute left-3 top-3 text-base-content/40"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -242,58 +242,74 @@ function AdminOrderTable({ token }) {
 
         {/* Order Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-          <div className="stat bg-base-100 rounded-lg shadow-sm">
-            <div className="stat-figure text-primary">
-              <FiShoppingCart className="w-6 h-6" />
-            </div>
-            <div className="stat-title">Total Orders</div>
-            <div className="stat-value text-primary">{orders.length}</div>
-          </div>
-
-          <div className="stat bg-base-100 rounded-lg shadow-sm">
-            <div className="stat-figure text-success">
-              <FiCheckCircle className="w-6 h-6" />
-            </div>
-            <div className="stat-title">Delivered</div>
-            <div className="stat-value text-success">
-              {orders.filter(order => order.status === 'Delivered').length}
+          <div className="admin-card p-4 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-base-content/70">Total Orders</div>
+                <div className="text-2xl font-bold text-primary">{orders.length}</div>
+              </div>
+              <div className="text-primary">
+                <FiShoppingCart className="w-8 h-8" />
+              </div>
             </div>
           </div>
 
-          <div className="stat bg-base-100 rounded-lg shadow-sm">
-            <div className="stat-figure text-warning">
-              <FiClock className="w-6 h-6" />
-            </div>
-            <div className="stat-title">Pending</div>
-            <div className="stat-value text-warning">
-              {orders.filter(order => order.status === 'Pending').length}
+          <div className="admin-card p-4 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-base-content/70">Delivered</div>
+                <div className="text-2xl font-bold text-success">
+                  {orders.filter(order => order.status === 'Delivered').length}
+                </div>
+              </div>
+              <div className="text-success">
+                <FiCheckCircle className="w-8 h-8" />
+              </div>
             </div>
           </div>
 
-          <div className="stat bg-base-100 rounded-lg shadow-sm">
-            <div className="stat-figure text-info">
-              <FiDollarSign className="w-6 h-6" />
+          <div className="admin-card p-4 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-base-content/70">Pending</div>
+                <div className="text-2xl font-bold text-warning">
+                  {orders.filter(order => order.status === 'Pending').length}
+                </div>
+              </div>
+              <div className="text-warning">
+                <FiClock className="w-8 h-8" />
+              </div>
             </div>
-            <div className="stat-title">Total Revenue</div>
-            <div className="stat-value text-info">
-              ${orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0).toFixed(2)}
+          </div>
+
+          <div className="admin-card p-4 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-base-content/70">Total Revenue</div>
+                <div className="text-2xl font-bold text-info">
+                  ${orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0).toFixed(2)}
+                </div>
+              </div>
+              <div className="text-info">
+                <FiDollarSign className="w-8 h-8" />
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center h-64 bg-white rounded-xl shadow-sm p-6">
+        <div className="flex justify-center items-center h-64 admin-card p-6">
           <Loading />
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="admin-table">
           <div className="overflow-x-auto">
             <table className="table w-full">
-              <thead className="bg-gray-50">
+              <thead>
                 <tr>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="cursor-pointer hover:bg-base-200 transition-colors"
                     onClick={() => handleSort('_id')}
                   >
                     <div className="flex items-center gap-1">
@@ -304,7 +320,7 @@ function AdminOrderTable({ token }) {
                     </div>
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="cursor-pointer hover:bg-base-200 transition-colors"
                     onClick={() => handleSort('customer')}
                   >
                     <div className="flex items-center gap-1">
@@ -315,7 +331,7 @@ function AdminOrderTable({ token }) {
                     </div>
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="cursor-pointer hover:bg-base-200 transition-colors"
                     onClick={() => handleSort('status')}
                   >
                     <div className="flex items-center gap-1">
@@ -326,7 +342,7 @@ function AdminOrderTable({ token }) {
                     </div>
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="cursor-pointer hover:bg-base-200 transition-colors"
                     onClick={() => handleSort('isPaid')}
                   >
                     <div className="flex items-center gap-1">
@@ -337,7 +353,7 @@ function AdminOrderTable({ token }) {
                     </div>
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="cursor-pointer hover:bg-base-200 transition-colors"
                     onClick={() => handleSort('totalPrice')}
                   >
                     <div className="flex items-center gap-1">
@@ -348,7 +364,7 @@ function AdminOrderTable({ token }) {
                     </div>
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="cursor-pointer hover:bg-base-200 transition-colors"
                     onClick={() => handleSort('createdAt')}
                   >
                     <div className="flex items-center gap-1">
@@ -358,39 +374,39 @@ function AdminOrderTable({ token }) {
                       )}
                     </div>
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody>
                 {currentOrders.length > 0 ? (
                   currentOrders.map((order) => (
-                    <tr key={order._id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
+                    <tr key={order._id} className="hover">
+                      <td>
+                        <div className="font-medium text-base-content">
                           <span className="font-mono">#{order._id.slice(-6)}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td>
                         <div>
-                          <div className="text-sm font-medium text-gray-900">{order.user?.name || "Guest"}</div>
-                          <div className="text-sm text-gray-500">{order.user?.email || "No email"}</div>
+                          <div className="font-medium text-base-content">{order.user?.name || "Guest"}</div>
+                          <div className="text-base-content/70 text-sm">{order.user?.email || "No email"}</div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td>
                         {getStatusBadge(order.status || "Pending")}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td>
                         {getPaymentBadge(order.isPaid)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-primary">${order.totalPrice?.toFixed(2) || "0.00"}</div>
+                      <td>
+                        <div className="font-medium text-primary">${order.totalPrice?.toFixed(2) || "0.00"}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-500">
+                      <td>
+                        <div className="text-base-content/70">
                           {new Date(order.createdAt).toLocaleDateString()}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <td className="text-right">
                         <button
                           onClick={() => handleEdit(order)}
                           className="btn btn-sm btn-outline btn-primary gap-1"
@@ -403,13 +419,13 @@ function AdminOrderTable({ token }) {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" className="px-6 py-12 text-center">
+                    <td colSpan="7" className="py-12 text-center">
                       <div className="flex flex-col items-center justify-center">
-                        <div className="bg-gray-100 p-4 rounded-full mb-4">
-                          <FiAlertCircle className="h-12 w-12 text-gray-400" />
+                        <div className="bg-base-200 p-4 rounded-full mb-4">
+                          <FiAlertCircle className="h-12 w-12 text-base-content/40" />
                         </div>
-                        <h3 className="text-lg font-medium text-gray-900">No orders found</h3>
-                        <p className="text-gray-500 mt-1">
+                        <h3 className="text-lg font-medium text-base-content">No orders found</h3>
+                        <p className="text-base-content/70 mt-1">
                           {searchQuery ? "Try adjusting your search query" : "There are no orders to display"}
                         </p>
                         {searchQuery && (
@@ -430,7 +446,7 @@ function AdminOrderTable({ token }) {
 
           {/* Pagination */}
           {sortedOrders.length > 0 && (
-            <div className="px-6 py-4 flex items-center justify-between border-t border-gray-200">
+            <div className="px-6 py-4 flex items-center justify-between border-t border-base-300">
               <div className="flex-1 flex justify-between sm:hidden">
                 <button
                   onClick={prevPage}
@@ -449,7 +465,7 @@ function AdminOrderTable({ token }) {
               </div>
               <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-base-content/70">
                     Showing <span className="font-medium">{indexOfFirstOrder + 1}</span> to{" "}
                     <span className="font-medium">
                       {Math.min(indexOfLastOrder, sortedOrders.length)}
@@ -514,8 +530,8 @@ function AdminOrderTable({ token }) {
 
           {form._id && (
             <div className="bg-base-200 p-3 rounded-lg mb-6">
-              <div className="text-sm text-gray-500">Order ID</div>
-              <div className="font-mono font-medium">#{form._id.slice(-6)}</div>
+              <div className="text-sm text-base-content/70">Order ID</div>
+              <div className="font-mono font-medium text-base-content">#{form._id.slice(-6)}</div>
             </div>
           )}
 

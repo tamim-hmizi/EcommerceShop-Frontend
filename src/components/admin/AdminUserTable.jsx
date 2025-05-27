@@ -2,28 +2,41 @@ import { useEffect, useState } from "react";
 import { getUsers, deleteUser } from "../../services/UserService";
 import { useSelector } from "react-redux";
 import Loading from "../Loading";
+import { FiSearch, FiUsers, FiTrash2, FiRefreshCw } from "react-icons/fi";
 
 function AdminUserTable({ token }) {
   const currentUser = useSelector((state) => state.auth.user);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await getUsers(token);
-        setUsers(response.data);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchUsers = async (isRefreshing = false) => {
+    if (isRefreshing) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
 
+    try {
+      const response = await getUsers(token);
+      setUsers(response.data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
     fetchUsers();
   }, [token]);
+
+  const handleRefresh = () => {
+    fetchUsers(true);
+  };
 
   const handleDelete = async (_id) => {
     try {
@@ -37,118 +50,137 @@ function AdminUserTable({ token }) {
 
   const filteredUsers = users
     .filter((user) => user._id !== currentUser._id)
-    .filter((user) => 
+    .filter((user) =>
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h1 className="text-2xl font-bold text-gray-800">User Management</h1>
-        <div className="w-full md:w-64">
-          <div className="form-control">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search users..."
-                className="input input-bordered w-full pl-10"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 absolute left-3 top-3 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+      {/* Header Section */}
+      <div className="admin-header p-6 rounded-lg mb-6">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-base-content flex items-center gap-3">
+              <FiUsers className="w-8 h-8 text-primary" />
+              User Management
+            </h1>
+            <p className="text-base-content/70 mt-2">
+              Manage and monitor user accounts
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4">
+            {/* Search Input */}
+            <div className="form-control">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search users..."
+                  className="input input-bordered w-full md:w-64 pl-10"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
-              </svg>
+                <FiSearch className="h-5 w-5 absolute left-3 top-3 text-base-content/40" />
+              </div>
             </div>
+
+            {/* Refresh Button */}
+            <button
+              onClick={handleRefresh}
+              className="btn btn-ghost btn-circle hover:bg-primary/10 hover:text-primary transition-all duration-200"
+              disabled={refreshing}
+              title="Refresh user list"
+            >
+              <FiRefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="flex items-center gap-6 mt-4 pt-4 border-t border-base-300">
+          <div className="stat">
+            <div className="stat-title text-sm">Total Users</div>
+            <div className="stat-value text-2xl text-primary">{users.length}</div>
+          </div>
+          <div className="stat">
+            <div className="stat-title text-sm">Filtered Results</div>
+            <div className="stat-value text-2xl text-secondary">{filteredUsers.length}</div>
           </div>
         </div>
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center h-64">
+        <div className="admin-card flex justify-center items-center h-64">
           <Loading />
         </div>
       ) : filteredUsers.length === 0 ? (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="text-center py-12">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="mx-auto h-12 w-12 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-              />
-            </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">
+        <div className="admin-card">
+          <div className="text-center py-16">
+            <FiUsers className="mx-auto h-16 w-16 text-base-content/40 mb-4" />
+            <h3 className="text-xl font-semibold text-base-content mb-2">
               {searchTerm ? "No matching users found" : "No users available"}
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="text-base-content/60 mb-4">
               {searchTerm
-                ? "Try adjusting your search query"
-                : "All users are currently administrators"}
+                ? "Try adjusting your search query to find users"
+                : "All users are currently administrators or no users exist"}
             </p>
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm("")}
+                className="btn btn-outline btn-primary"
+              >
+                Clear search
+              </button>
+            )}
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="admin-table">
           <div className="overflow-x-auto">
             <table className="table w-full">
-              <thead className="bg-gray-50">
+              <thead>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    User
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
+                  <th>User</th>
+                  <th>Email</th>
+                  <th className="text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody>
                 {filteredUsers.map((user) => (
-                  <tr key={user._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                  <tr key={user._id} className="hover:bg-base-200 transition-colors">
+                    <td>
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary text-primary-content flex items-center justify-center">
-                          {user.name.charAt(0).toUpperCase()}
+                        <div className="avatar placeholder">
+                          <div className="bg-primary text-primary-content rounded-full w-12 h-12">
+                            <span className="text-lg font-semibold">
+                              {user.name.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="font-semibold text-base-content">
                             {user.name}
                           </div>
-                          <div className="text-sm text-gray-500">
-                            {user.role || "User"}
+                          <div className="text-sm text-base-content/60">
+                            <span className="badge badge-ghost badge-sm">
+                              {user.role || "User"}
+                            </span>
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{user.email}</div>
+                    <td>
+                      <div className="text-base-content">{user.email}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="text-right">
                       <button
                         onClick={() => setDeleteConfirm(user._id)}
-                        className="btn btn-sm btn-outline btn-error"
+                        className="btn btn-sm btn-outline btn-error hover:scale-105 transition-transform"
+                        title="Delete user"
                       >
+                        <FiTrash2 className="w-4 h-4" />
                         Delete
                       </button>
                     </td>

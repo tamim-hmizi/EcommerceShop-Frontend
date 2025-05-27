@@ -4,10 +4,12 @@ import { doughnutOptions } from './chartOptions';
 
 const CategoryChart = ({ categoryData, totalCategories }) => {
   return (
-    <div className="bg-white rounded-xl shadow-md p-6">
+    <div className="admin-card p-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="font-medium text-gray-800">Product Categories</h3>
-        <div className="text-sm text-gray-500">Total: {totalCategories}</div>
+        <h3 className="text-lg font-semibold text-base-content">Product Categories</h3>
+        <div className="badge badge-primary badge-lg">
+          Total: {totalCategories || 0}
+        </div>
       </div>
       <div className="h-80 flex items-center justify-center">
         <Doughnut data={categoryData} options={doughnutOptions} />

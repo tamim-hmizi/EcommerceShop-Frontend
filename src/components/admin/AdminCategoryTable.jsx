@@ -85,48 +85,53 @@ const CategoryTable = ({ token }) => {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Category Management</h1>
-        <button
-          onClick={() => {
-            setForm({ _id: null, name: "", description: "" });
-            setErrors({});
-            setIsModalOpen(true);
-          }}
-          className="btn btn-primary gap-2"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-          </svg>
-          Add Category
-        </button>
+      <div className="admin-header p-6 rounded-lg mb-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-base-content">Category Management</h1>
+            <p className="text-base-content/70 mt-1">Manage product categories</p>
+          </div>
+          <button
+            onClick={() => {
+              setForm({ _id: null, name: "", description: "" });
+              setErrors({});
+              setIsModalOpen(true);
+            }}
+            className="btn btn-primary gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
+            Add Category
+          </button>
+        </div>
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center h-64">
+        <div className="flex justify-center items-center h-64 admin-card p-6">
           <Loading />
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="admin-table">
           <div className="overflow-x-auto">
             <table className="table w-full">
-              <thead className="bg-gray-50">
+              <thead>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="text-left">Name</th>
+                  <th className="text-left">Description</th>
+                  <th className="text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody>
                 {categories.map((category) => (
-                  <tr key={category._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{category.name}</td>
-                    <td className="px-6 py-4 whitespace-normal max-w-xs text-gray-500">{category.description}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="space-x-2">
+                  <tr key={category._id} className="hover">
+                    <td className="font-medium text-base-content">{category.name}</td>
+                    <td className="text-base-content/70 max-w-xs">{category.description}</td>
+                    <td className="text-right">
+                      <div className="flex justify-end gap-2">
                         <button
                           onClick={() => handleEdit(category)}
-                          className="btn btn-sm btn-outline btn-info"
+                          className="btn btn-sm btn-outline btn-primary"
                         >
                           Edit
                         </button>
