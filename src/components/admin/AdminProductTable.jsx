@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { getProducts, createProduct, updateProduct, deleteProduct } from "../../services/ProductService";
 import { getCategories } from "../../services/categoryService";
 import api from "../../services/api";
+import { constructImageUrl, createSmallPlaceholder } from "../../utils/imageUtils";
 
 // Import sub-components
 import ProductTableHeader from "./product/ProductTableHeader";
@@ -85,11 +86,39 @@ const AdminProductTable = ({ token }) => {
 
   const fetchImage = async (imagePath, productId) => {
     try {
-      const response = await api.get(imagePath, { responseType: "blob" });
-      const imageUrl = URL.createObjectURL(response.data);
-      setImageURLs((prev) => ({ ...prev, [productId]: imageUrl }));
+      if (imagePath.startsWith('http')) {
+        setImageURLs((prev) => ({ ...prev, [productId]: imagePath }));
+        return;
+      }
+
+      // Use the utility function to construct the correct image URL
+      const imageUrl = constructImageUrl(imagePath);
+
+      if (imageUrl) {
+        // Try to load the image directly first (for static files)
+        try {
+          const img = new Image();
+          const imageLoadPromise = new Promise((resolve, reject) => {
+            img.onload = () => resolve(imageUrl);
+            img.onerror = reject;
+            img.src = imageUrl;
+          });
+
+          await imageLoadPromise;
+          setImageURLs((prev) => ({ ...prev, [productId]: imageUrl }));
+        } catch {
+          // If direct loading fails, try API endpoint
+          const response = await api.get(imageUrl, { responseType: "blob" });
+          const blobUrl = URL.createObjectURL(response.data);
+          setImageURLs((prev) => ({ ...prev, [productId]: blobUrl }));
+        }
+      } else {
+        throw new Error('Invalid image path');
+      }
     } catch (error) {
       console.error(`Error fetching image for product ${productId}:`, error);
+      // Set a placeholder image if loading fails
+      setImageURLs((prev) => ({ ...prev, [productId]: createSmallPlaceholder('Product') }));
     }
   };
 

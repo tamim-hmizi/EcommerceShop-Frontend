@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import Loading from "../components/Loading";
 import { Link } from "react-router-dom";
 import api from "../services/api";
+import { constructImageUrl, createMediumPlaceholder } from "../utils/imageUtils";
 
 function Favorites() {
   const dispatch = useDispatch();
@@ -36,23 +37,39 @@ function Favorites() {
               if (product.image.startsWith('http')) {
                 urls[product._id] = product.image;
               } else {
-                // Construct the full URL for the API endpoint
-                const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-                const imagePath = product.image.startsWith('/') ? product.image : `/${product.image}`;
-                const fullUrl = `${baseUrl}${imagePath}`;
+                // Use the utility function to construct the correct image URL
+                const imageUrl = constructImageUrl(product.image);
 
-                const response = await api.get(fullUrl, {
-                  responseType: "blob",
-                });
-                const blobUrl = URL.createObjectURL(response.data);
-                urls[product._id] = blobUrl;
+                if (imageUrl) {
+                  // Try to load the image directly first (for static files)
+                  try {
+                    const img = new Image();
+                    const imageLoadPromise = new Promise((resolve, reject) => {
+                      img.onload = () => resolve(imageUrl);
+                      img.onerror = reject;
+                      img.src = imageUrl;
+                    });
+
+                    await imageLoadPromise;
+                    urls[product._id] = imageUrl;
+                  } catch {
+                    // If direct loading fails, try API endpoint
+                    const response = await api.get(imageUrl, {
+                      responseType: "blob",
+                    });
+                    const blobUrl = URL.createObjectURL(response.data);
+                    urls[product._id] = blobUrl;
+                  }
+                } else {
+                  throw new Error('Invalid image path');
+                }
               }
             } catch (error) {
               console.error(`Error loading image for product ${product._id}:`, error);
-              urls[product._id] = `https://via.placeholder.com/300?text=${encodeURIComponent(product.name)}`;
+              urls[product._id] = createMediumPlaceholder(product.name || 'Product');
             }
           } else {
-            urls[product._id] = `https://via.placeholder.com/300?text=${encodeURIComponent(product.name)}`;
+            urls[product._id] = createMediumPlaceholder(product.name || 'Product');
           }
         }
 
@@ -154,9 +171,13 @@ function Favorites() {
                   </div>
                 ) : (
                   <img
-                    src={imageUrls[product._id] || `https://via.placeholder.com/300?text=${encodeURIComponent(product.name)}`}
+                    src={imageUrls[product._id] || createMediumPlaceholder(product.name || 'Product')}
                     alt={product.name}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.onerror = null; // Prevent infinite error loop
+                      e.target.src = createMediumPlaceholder(product.name || 'Product');
+                    }}
                   />
                 )}
                 <button

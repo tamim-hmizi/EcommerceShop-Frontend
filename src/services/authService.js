@@ -16,3 +16,23 @@ export const updateProfile = async (userData, token) => {
   });
   return res.data;
 };
+
+export const uploadProfilePicture = async (file, token) => {
+  const formData = new FormData();
+  formData.append("profilePicture", file);
+
+  const res = await api.post("/users/profile/picture", formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res.data;
+};
+
+export const deleteProfilePicture = async (token) => {
+  const res = await api.delete("/users/profile/picture", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;
+};

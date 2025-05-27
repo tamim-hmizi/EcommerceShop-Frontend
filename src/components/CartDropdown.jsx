@@ -28,17 +28,19 @@ const constructImageUrl = (imagePath) => {
   if (!imagePath) return null;
   if (imagePath.startsWith('http')) return imagePath;
 
-  const envApiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+  // Get base URL from environment or use default (without /api for static files)
+  const envBaseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || "http://localhost:5000";
 
+  // Handle different path formats
   if (imagePath.startsWith('/uploads/')) {
-    return `${envApiUrl}${imagePath}`;
-  } else if (imagePath.startsWith('/api/uploads/')) {
-    const pathWithoutApi = imagePath.replace('/api', '');
-    return `${envApiUrl}${pathWithoutApi}`;
+    // Path like "/uploads/filename.ext"
+    return `${envBaseUrl}${imagePath}`;
   } else if (imagePath.startsWith('uploads/')) {
-    return `${envApiUrl}/${imagePath}`;
+    // Path like "uploads/filename.ext"
+    return `${envBaseUrl}/${imagePath}`;
   } else {
-    return `${envApiUrl}/uploads/${imagePath}`;
+    // Assume it's just the filename - add full uploads path
+    return `${envBaseUrl}/uploads/${imagePath}`;
   }
 };
 
@@ -91,12 +93,25 @@ function CartDropdown() {
                 console.log(`Fetching image for ${item.name} from:`, imagePath);
 
                 try {
-                  // Use axios for consistency with other components
-                  const response = await api.get(imagePath, {
-                    responseType: "blob",
+                  // Try to load the image directly first (for static files)
+                  const img = new Image();
+                  const imageLoadPromise = new Promise((resolve, reject) => {
+                    img.onload = () => resolve(imagePath);
+                    img.onerror = reject;
+                    img.src = imagePath;
                   });
-                  const blobUrl = URL.createObjectURL(response.data);
-                  newImageURLs[item._id] = blobUrl;
+
+                  try {
+                    await imageLoadPromise;
+                    newImageURLs[item._id] = imagePath;
+                  } catch {
+                    // If direct loading fails, try API endpoint
+                    const response = await api.get(imagePath, {
+                      responseType: "blob",
+                    });
+                    const blobUrl = URL.createObjectURL(response.data);
+                    newImageURLs[item._id] = blobUrl;
+                  }
                 } catch (imageError) {
                   console.warn(`Failed to load image from ${imagePath}:`, imageError.message);
                   // If image loading fails, use placeholder

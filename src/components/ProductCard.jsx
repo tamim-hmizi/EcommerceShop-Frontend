@@ -9,6 +9,7 @@ import { toggleProductFavorite, checkProductFavorite } from "../redux/slices/fav
 import { store } from "../redux/store";
 import QuickViewModal from "./QuickViewModal";
 import { toast } from "react-toastify";
+import { constructImageUrl, createMediumPlaceholder } from "../utils/imageUtils";
 
 // Rating Stars Component
 const RatingStars = ({ rating = 4.5 }) => {
@@ -55,34 +56,64 @@ function ProductCard({ product }) {
 
   // Load product image
   useEffect(() => {
+    let currentBlobUrl = null;
+
     const fetchImage = async () => {
       if (product.image) {
         try {
           // Check if the image path is a full URL or a relative path
           if (product.image.startsWith('http')) {
             setImageUrl(product.image);
+            setLoadingImage(false);
           } else {
-            // Construct the full URL for the API endpoint
-            const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-            const imagePath = product.image.startsWith('/') ? product.image : `/${product.image}`;
-            const fullUrl = `${baseUrl}${imagePath}`;
+            // Use the utility function to construct the correct image URL
+            const imageUrl = constructImageUrl(product.image);
 
-            const response = await api.get(fullUrl, {
-              responseType: "blob",
-            });
-            const blobUrl = URL.createObjectURL(response.data);
-            setImageUrl(blobUrl);
+            if (imageUrl) {
+              // Try to load the image directly first (for static files)
+              try {
+                const img = new Image();
+                img.onload = () => {
+                  setImageUrl(imageUrl);
+                  setLoadingImage(false);
+                };
+                img.onerror = () => {
+                  // If direct loading fails, try API endpoint
+                  fetchViaAPI(imageUrl);
+                };
+                img.src = imageUrl;
+              } catch {
+                fetchViaAPI(imageUrl);
+              }
+            } else {
+              throw new Error('Invalid image path');
+            }
           }
         } catch (error) {
-          console.error("Error fetching image:", error);
-          // Set a fallback image if the product image fails to load
-          setImageUrl(`https://via.placeholder.com/300?text=${encodeURIComponent(product.name)}`);
-        } finally {
+          console.error("Error loading image:", error);
+          // Set a local placeholder if the product image fails to load
+          setImageUrl(createMediumPlaceholder(product.name || 'Product'));
           setLoadingImage(false);
         }
       } else {
-        // Set a placeholder image if no image is provided
-        setImageUrl(`https://via.placeholder.com/300?text=${encodeURIComponent(product.name)}`);
+        // Set a local placeholder if no image is provided
+        setImageUrl(createMediumPlaceholder(product.name || 'Product'));
+        setLoadingImage(false);
+      }
+    };
+
+    const fetchViaAPI = async (imageUrl) => {
+      try {
+        const response = await api.get(imageUrl, {
+          responseType: "blob",
+        });
+        const blobUrl = URL.createObjectURL(response.data);
+        currentBlobUrl = blobUrl;
+        setImageUrl(blobUrl);
+        setLoadingImage(false);
+      } catch (error) {
+        console.error("Error fetching image via API:", error);
+        setImageUrl(createMediumPlaceholder(product.name || 'Product'));
         setLoadingImage(false);
       }
     };
@@ -90,9 +121,12 @@ function ProductCard({ product }) {
     fetchImage();
 
     return () => {
-      if (imageUrl && imageUrl.startsWith('blob:')) URL.revokeObjectURL(imageUrl);
+      // Cleanup blob URLs to prevent memory leaks
+      if (currentBlobUrl) {
+        URL.revokeObjectURL(currentBlobUrl);
+      }
     };
-  }, [product.image, product.name, imageUrl]);
+  }, [product.image, product.name]);
 
   // Check if product is in favorites
   useEffect(() => {
@@ -221,6 +255,10 @@ function ProductCard({ product }) {
                 src={imageUrl}
                 alt={product.name}
                 className={`w-full h-full object-cover transition-transform duration-500 ${isHovered ? 'scale-110' : 'scale-100'}`}
+                onError={(e) => {
+                  e.target.onerror = null; // Prevent infinite error loop
+                  e.target.src = createMediumPlaceholder(product.name || 'Product');
+                }}
               />
 
               {/* Discount tag if original price exists */}

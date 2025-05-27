@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "../redux/slices/authSlice";
 import CartDropdown from "./CartDropdown";
 import ThemeToggle from "./ThemeToggle";
+import Avatar from "./Avatar";
 import { useState, useEffect } from "react";
 import {
   FiUser,
@@ -131,20 +132,13 @@ function Navbar() {
                     tabIndex={0}
                     className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
                   >
-                    <div className="avatar">
-                      <div className="w-9 rounded-full ring-2 ring-primary/20 ring-offset-2 shadow-sm overflow-hidden">
-                        <img
-                          src={
-                            user.avatar ||
-                            "https://ui-avatars.com/api/?name=" +
-                              encodeURIComponent(user.name) +
-                              "&background=4f46e5&color=fff"
-                          }
-                          alt={user.name}
-                          className="object-cover"
-                        />
-                      </div>
-                    </div>
+                    <Avatar
+                      src={user.profilePicture}
+                      alt={user.name}
+                      size="md"
+                      fallbackText={user.name}
+                      className="ring-2 ring-primary/20 ring-offset-2 shadow-sm"
+                    />
                     <span className="hidden md:inline text-sm font-medium text-base-content">
                       {user.name}
                     </span>

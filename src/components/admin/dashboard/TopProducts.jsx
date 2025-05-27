@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FiPackage } from "react-icons/fi";
 import api from "../../../services/api";
+import { constructImageUrl, createSmallPlaceholder } from "../../../utils/imageUtils";
 
 const TopProducts = ({ topProducts, totalStock }) => {
   const [productImages, setProductImages] = useState({});
@@ -13,19 +14,44 @@ const TopProducts = ({ topProducts, totalStock }) => {
         if (product.image) {
           setLoadingImages(prev => ({ ...prev, [product._id]: true }));
           try {
-            const response = await api.get(product.image, {
-              responseType: "blob",
-            });
-            const blobUrl = URL.createObjectURL(response.data);
-            return { id: product._id, url: blobUrl };
+            if (product.image.startsWith('http')) {
+              return { id: product._id, url: product.image };
+            }
+
+            // Use the utility function to construct the correct image URL
+            const imageUrl = constructImageUrl(product.image);
+
+            if (imageUrl) {
+              // Try to load the image directly first (for static files)
+              try {
+                const img = new Image();
+                const imageLoadPromise = new Promise((resolve, reject) => {
+                  img.onload = () => resolve(imageUrl);
+                  img.onerror = reject;
+                  img.src = imageUrl;
+                });
+
+                await imageLoadPromise;
+                return { id: product._id, url: imageUrl };
+              } catch {
+                // If direct loading fails, try API endpoint
+                const response = await api.get(imageUrl, {
+                  responseType: "blob",
+                });
+                const blobUrl = URL.createObjectURL(response.data);
+                return { id: product._id, url: blobUrl };
+              }
+            } else {
+              throw new Error('Invalid image path');
+            }
           } catch (error) {
             console.error(`Error fetching image for product ${product._id}:`, error);
-            return { id: product._id, url: null };
+            return { id: product._id, url: createSmallPlaceholder(product.name || 'Product') };
           } finally {
             setLoadingImages(prev => ({ ...prev, [product._id]: false }));
           }
         }
-        return { id: product._id, url: null };
+        return { id: product._id, url: createSmallPlaceholder(product.name || 'Product') };
       });
 
       const results = await Promise.all(imagePromises);
@@ -70,6 +96,10 @@ const TopProducts = ({ topProducts, totalStock }) => {
                       src={productImages[product._id]}
                       alt={product.name}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.onerror = null; // Prevent infinite error loop
+                        e.target.src = createSmallPlaceholder(product.name || 'Product');
+                      }}
                     />
                   ) : (
                     <FiPackage className="text-base-content/40 w-6 h-6" />

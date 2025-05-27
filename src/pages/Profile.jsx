@@ -1,9 +1,20 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { FiUser, FiMail, FiLock, FiSave, FiAlertCircle } from "react-icons/fi";
+import {
+  FiUser,
+  FiMail,
+  FiLock,
+  FiSave,
+  FiAlertCircle,
+  FiEdit3,
+  FiCamera,
+  FiShield
+} from "react-icons/fi";
 import { updateUserProfile } from "../redux/slices/authSlice";
 import Loading from "../components/Loading";
+import ProfilePictureUpload from "../components/ProfilePictureUpload";
+import Avatar from "../components/Avatar";
 
 function Profile() {
   const navigate = useNavigate();
@@ -14,8 +25,11 @@ function Profile() {
     name: "",
     email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
+    bio: ""
   });
+
+  const [activeTab, setActiveTab] = useState("profile");
 
   const [formErrors, setFormErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
@@ -38,7 +52,8 @@ function Profile() {
         name: user.name || "",
         email: user.email || "",
         password: "",
-        confirmPassword: ""
+        confirmPassword: "",
+        bio: user.bio || ""
       });
     },
     [user, navigate]
@@ -86,6 +101,10 @@ function Profile() {
       errors.confirmPassword = "Passwords do not match";
     }
 
+    if (formData.bio && formData.bio.length > 500) {
+      errors.bio = "Bio cannot exceed 500 characters";
+    }
+
     return errors;
   };
 
@@ -105,6 +124,7 @@ function Profile() {
       const updateData = {
         name: formData.name,
         email: formData.email,
+        bio: formData.bio,
         ...(formData.password ? { password: formData.password } : {})
       };
 
@@ -131,16 +151,62 @@ function Profile() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="bg-base-100 rounded-xl shadow-sm overflow-hidden border border-base-300">
-        <div className="p-6 sm:p-8 border-b border-base-300">
-          <h1 className="text-2xl font-bold text-base-content">My Profile</h1>
-          <p className="text-base-content/60 mt-1">
-            Manage your account information
-          </p>
+    <div className="container mx-auto px-4 py-8 max-w-6xl">
+      {/* Header Section */}
+      <div className="admin-header p-6 rounded-lg mb-6">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+          <div className="flex items-center gap-4">
+            <Avatar
+              src={user?.profilePicture}
+              alt={user?.name || "Profile"}
+              size="xl"
+              fallbackText={user?.name}
+              className="border-4 border-primary/20"
+            />
+            <div>
+              <h1 className="text-3xl font-bold text-base-content">{user?.name}</h1>
+              <p className="text-base-content/70 mt-1">{user?.email}</p>
+              {user?.bio && (
+                <p className="text-base-content/60 mt-2 max-w-md">{user.bio}</p>
+              )}
+            </div>
+          </div>
         </div>
+      </div>
 
-        <div className="p-6 sm:p-8">
+      {/* Tabs */}
+      <div className="tabs tabs-boxed bg-base-200 mb-6 p-1">
+        <button
+          className={`tab tab-lg ${activeTab === "profile" ? "tab-active" : ""}`}
+          onClick={() => setActiveTab("profile")}
+        >
+          <FiUser className="w-4 h-4 mr-2" />
+          Profile Info
+        </button>
+        <button
+          className={`tab tab-lg ${activeTab === "picture" ? "tab-active" : ""}`}
+          onClick={() => setActiveTab("picture")}
+        >
+          <FiCamera className="w-4 h-4 mr-2" />
+          Profile Picture
+        </button>
+        <button
+          className={`tab tab-lg ${activeTab === "security" ? "tab-active" : ""}`}
+          onClick={() => setActiveTab("security")}
+        >
+          <FiShield className="w-4 h-4 mr-2" />
+          Security
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      <div className="admin-card p-6 rounded-lg">{activeTab === "profile" && (
+        <div>
+          <div className="flex items-center gap-3 mb-6">
+            <FiEdit3 className="w-6 h-6 text-primary" />
+            <h2 className="text-xl font-semibold text-base-content">Profile Information</h2>
+          </div>
+
           {error &&
             <div className="alert alert-error mb-6 flex items-center gap-3">
               <FiAlertCircle className="w-5 h-5" />
@@ -163,7 +229,7 @@ function Profile() {
             </div>}
 
           <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="form-control">
                 <label className="label">
                   <span className="label-text font-medium flex items-center gap-2 text-base-content">
@@ -214,11 +280,78 @@ function Profile() {
                   </label>}
               </div>
 
+              {/* Bio Field - Full Width */}
+              <div className="form-control md:col-span-2">
+                <label className="label">
+                  <span className="label-text font-medium flex items-center gap-2 text-base-content">
+                    <FiEdit3 className="w-4 h-4 text-primary" />
+                    Bio
+                  </span>
+                </label>
+                <textarea
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleChange}
+                  className={`textarea textarea-bordered w-full text-base-content ${formErrors.bio
+                    ? "textarea-error"
+                    : ""}`}
+                  placeholder="Tell us about yourself..."
+                  rows="4"
+                  maxLength="500"
+                />
+                <div className="flex justify-between items-center mt-1">
+                  {formErrors.bio ? (
+                    <span className="label-text-alt text-error">
+                      {formErrors.bio}
+                    </span>
+                  ) : (
+                    <span></span>
+                  )}
+                  <span className="label-text-alt text-base-content/50">
+                    {formData.bio.length}/500
+                  </span>
+                </div>
+              </div>
+
+              <div className="form-control md:col-span-2">
+                <button
+                  type="submit"
+                  className="btn btn-primary gap-2 w-full md:w-auto"
+                  disabled={isSubmitting}
+                >
+                  <FiSave className="w-4 h-4" />
+                  {isSubmitting ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {activeTab === "picture" && (
+        <div>
+          <div className="flex items-center gap-3 mb-6">
+            <FiCamera className="w-6 h-6 text-primary" />
+            <h2 className="text-xl font-semibold text-base-content">Profile Picture</h2>
+          </div>
+          <ProfilePictureUpload />
+        </div>
+      )}
+
+      {activeTab === "security" && (
+        <div>
+          <div className="flex items-center gap-3 mb-6">
+            <FiShield className="w-6 h-6 text-primary" />
+            <h2 className="text-xl font-semibold text-base-content">Security Settings</h2>
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="form-control">
                 <label className="label">
                   <span className="label-text font-medium flex items-center gap-2 text-base-content">
                     <FiLock className="w-4 h-4 text-primary" />
-                    New Password (leave blank to keep current)
+                    New Password
                   </span>
                 </label>
                 <input
@@ -229,7 +362,7 @@ function Profile() {
                   className={`input input-bordered w-full text-base-content ${formErrors.password
                     ? "input-error"
                     : ""}`}
-                  placeholder="New password (optional)"
+                  placeholder="Enter new password"
                 />
                 {formErrors.password &&
                   <label className="label">
@@ -264,19 +397,20 @@ function Profile() {
                   </label>}
               </div>
 
-              <div className="form-control mt-4">
+              <div className="form-control md:col-span-2">
                 <button
                   type="submit"
-                  className="btn btn-primary gap-2"
+                  className="btn btn-primary gap-2 w-full md:w-auto"
                   disabled={isSubmitting}
                 >
                   <FiSave className="w-4 h-4" />
-                  {isSubmitting ? "Saving..." : "Save Changes"}
+                  {isSubmitting ? "Updating Password..." : "Update Password"}
                 </button>
               </div>
             </div>
           </form>
         </div>
+      )}
       </div>
     </div>
   );

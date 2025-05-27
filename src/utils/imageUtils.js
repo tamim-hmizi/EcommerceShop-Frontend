@@ -54,42 +54,20 @@ export const constructImageUrl = (imagePath, baseUrl = null) => {
     return imagePath;
   }
 
-  // Get base URL from environment or use default
-  // Note: VITE_API_URL already includes /api, so we need to handle this carefully
-  const envApiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-  const apiBaseUrl = baseUrl || envApiUrl;
+  // Get base URL from environment or use default (without /api for static files)
+  const envBaseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || "http://localhost:5000";
+  const serverBaseUrl = baseUrl || envBaseUrl;
 
   // Handle different path formats
   if (imagePath.startsWith('/uploads/')) {
-    // Path like "/uploads/filename.ext"
-    // If apiBaseUrl already ends with /api, don't add it again
-    if (apiBaseUrl.endsWith('/api')) {
-      return `${apiBaseUrl}${imagePath}`;
-    } else {
-      return `${apiBaseUrl}/api${imagePath}`;
-    }
-  } else if (imagePath.startsWith('/api/uploads/')) {
-    // Path like "/api/uploads/filename.ext" - remove /api from path since baseUrl includes it
-    const pathWithoutApi = imagePath.replace('/api', '');
-    if (apiBaseUrl.endsWith('/api')) {
-      return `${apiBaseUrl}${pathWithoutApi}`;
-    } else {
-      return `${apiBaseUrl}${imagePath}`;
-    }
+    // Path like "/uploads/profile-pictures/filename.ext"
+    return `${serverBaseUrl}${imagePath}`;
   } else if (imagePath.startsWith('uploads/')) {
-    // Path like "uploads/filename.ext"
-    if (apiBaseUrl.endsWith('/api')) {
-      return `${apiBaseUrl}/${imagePath}`;
-    } else {
-      return `${apiBaseUrl}/api/${imagePath}`;
-    }
+    // Path like "uploads/profile-pictures/filename.ext"
+    return `${serverBaseUrl}/${imagePath}`;
   } else {
-    // Assume it's just the filename - add full path
-    if (apiBaseUrl.endsWith('/api')) {
-      return `${apiBaseUrl}/uploads/${imagePath}`;
-    } else {
-      return `${apiBaseUrl}/api/uploads/${imagePath}`;
-    }
+    // Assume it's just the filename - add full uploads path
+    return `${serverBaseUrl}/uploads/${imagePath}`;
   }
 };
 
@@ -101,6 +79,36 @@ export const constructImageUrl = (imagePath, baseUrl = null) => {
 export const handleImageError = (event, fallbackText = 'Image') => {
   event.target.onerror = null; // Prevent infinite error loop
   event.target.src = createSmallPlaceholder(fallbackText);
+};
+
+/**
+ * Validates if a file is a valid image
+ * @param {File} file - The file to validate
+ * @returns {object} - Validation result with isValid and error message
+ */
+export const validateImageFile = (file) => {
+  const maxSize = 5 * 1024 * 1024; // 5MB
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+
+  if (!file) {
+    return { isValid: false, error: 'No file provided' };
+  }
+
+  if (!allowedTypes.includes(file.type)) {
+    return {
+      isValid: false,
+      error: 'Please select a valid image file (JPEG, PNG, GIF, or WebP)'
+    };
+  }
+
+  if (file.size > maxSize) {
+    return {
+      isValid: false,
+      error: 'File size must be less than 5MB'
+    };
+  }
+
+  return { isValid: true, error: null };
 };
 
 /**

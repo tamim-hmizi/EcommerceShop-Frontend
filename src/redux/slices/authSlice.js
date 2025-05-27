@@ -57,7 +57,9 @@ export const updateUserProfile = createAsyncThunk(
       const updatedUser = {
         ...user,
         name: userData.name || user.name,
-        email: userData.email || user.email
+        email: userData.email || user.email,
+        bio: userData.bio !== undefined ? userData.bio : user.bio,
+        profilePicture: userData.profilePicture !== undefined ? userData.profilePicture : user.profilePicture
       };
 
       // Update localStorage
@@ -66,6 +68,66 @@ export const updateUserProfile = createAsyncThunk(
       return updatedUser;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data?.message || "Error updating profile");
+    }
+  }
+);
+
+// Upload Profile Picture
+export const uploadProfilePicture = createAsyncThunk(
+  "auth/uploadProfilePicture",
+  async (file, thunkAPI) => {
+    try {
+      const state = thunkAPI.getState();
+      const { user } = state.auth;
+
+      if (!user || !user.token) {
+        throw new Error("You must be logged in to upload a profile picture");
+      }
+
+      const response = await authService.uploadProfilePicture(file, user.token);
+
+      // Create updated user object with new profile picture
+      const updatedUser = {
+        ...user,
+        profilePicture: response.data.profilePicture
+      };
+
+      // Update localStorage
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      return updatedUser;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data?.message || "Error uploading profile picture");
+    }
+  }
+);
+
+// Delete Profile Picture
+export const deleteProfilePicture = createAsyncThunk(
+  "auth/deleteProfilePicture",
+  async (_, thunkAPI) => {
+    try {
+      const state = thunkAPI.getState();
+      const { user } = state.auth;
+
+      if (!user || !user.token) {
+        throw new Error("You must be logged in to delete your profile picture");
+      }
+
+      const response = await authService.deleteProfilePicture(user.token);
+
+      // Create updated user object without profile picture
+      const updatedUser = {
+        ...user,
+        profilePicture: null
+      };
+
+      // Update localStorage
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      return updatedUser;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data?.message || "Error deleting profile picture");
     }
   }
 );
@@ -107,6 +169,32 @@ const authSlice = createSlice({
         state.user = action.payload;
       })
       .addCase(updateUserProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Upload Profile Picture
+      .addCase(uploadProfilePicture.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(uploadProfilePicture.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(uploadProfilePicture.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Delete Profile Picture
+      .addCase(deleteProfilePicture.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteProfilePicture.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(deleteProfilePicture.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
