@@ -11,38 +11,11 @@ import { FiShoppingCart, FiX, FiArrowRight } from "react-icons/fi";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import api from "../services/api";
+import { constructImageUrl, createSmallPlaceholder } from "../utils/imageUtils";
 
-// Inline image utility functions to avoid import issues
-const createSmallPlaceholder = (text) => {
-  const svg = `
-    <svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
-      <rect width="100%" height="100%" fill="#f3f4f6"/>
-      <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="12"
-            fill="#6b7280" text-anchor="middle" dominant-baseline="middle">${text}</text>
-    </svg>
-  `;
-  return `data:image/svg+xml;base64,${btoa(svg)}`;
-};
 
-const constructImageUrl = (imagePath) => {
-  if (!imagePath) return null;
-  if (imagePath.startsWith('http')) return imagePath;
 
-  // Get base URL from environment or use default (without /api for static files)
-  const envBaseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || "http://localhost:5000";
 
-  // Handle different path formats
-  if (imagePath.startsWith('/uploads/')) {
-    // Path like "/uploads/filename.ext"
-    return `${envBaseUrl}${imagePath}`;
-  } else if (imagePath.startsWith('uploads/')) {
-    // Path like "uploads/filename.ext"
-    return `${envBaseUrl}/${imagePath}`;
-  } else {
-    // Assume it's just the filename - add full uploads path
-    return `${envBaseUrl}/uploads/${imagePath}`;
-  }
-};
 
 function CartDropdown() {
   const { items } = useSelector((state) => state.cart);

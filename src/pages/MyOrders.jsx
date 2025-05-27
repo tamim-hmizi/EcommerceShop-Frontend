@@ -3,6 +3,7 @@ import { getUserOrders } from "../services/OrderService";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { constructImageUrl, createSmallPlaceholder } from "../utils/imageUtils";
 
 import {
   FiPackage,
@@ -56,14 +57,38 @@ function MyOrders() {
             fetchedImages.current.add(id);
 
             try {
-              const fullPath = imagePath.startsWith("http")
-                ? imagePath
-                : `${import.meta.env.VITE_API_URL}${imagePath}`;
-              const res = await api.get(fullPath, { responseType: "blob" });
-              const blobUrl = URL.createObjectURL(res.data);
-              setImageURLs(prev => ({ ...prev, [id]: blobUrl }));
+              if (imagePath.startsWith('http')) {
+                setImageURLs(prev => ({ ...prev, [id]: imagePath }));
+              } else {
+                // Use the utility function to construct the correct image URL
+                const imageUrl = constructImageUrl(imagePath);
+
+                if (imageUrl) {
+                  // Try to load the image directly first (for static files)
+                  try {
+                    const img = new Image();
+                    const imageLoadPromise = new Promise((resolve, reject) => {
+                      img.onload = () => resolve(imageUrl);
+                      img.onerror = reject;
+                      img.src = imageUrl;
+                    });
+
+                    await imageLoadPromise;
+                    setImageURLs(prev => ({ ...prev, [id]: imageUrl }));
+                  } catch {
+                    // If direct loading fails, try API endpoint
+                    const res = await api.get(imageUrl, { responseType: "blob" });
+                    const blobUrl = URL.createObjectURL(res.data);
+                    setImageURLs(prev => ({ ...prev, [id]: blobUrl }));
+                  }
+                } else {
+                  throw new Error('Invalid image path');
+                }
+              }
             } catch (err) {
               console.warn(`Failed to fetch image for ${id}`, err);
+              // Set a placeholder image if loading fails
+              setImageURLs(prev => ({ ...prev, [id]: createSmallPlaceholder('Product') }));
             }
           }
         };
@@ -267,6 +292,10 @@ function MyOrders() {
                             src={imageURLs[item.product._id]}
                             alt={item.product?.name || "Product"}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            onError={(e) => {
+                              e.target.onerror = null; // Prevent infinite error loop
+                              e.target.src = createSmallPlaceholder(item.product?.name || 'Product');
+                            }}
                           />
                         ) : (
                           <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-base-200 to-base-300 text-base-content/40 p-2">
