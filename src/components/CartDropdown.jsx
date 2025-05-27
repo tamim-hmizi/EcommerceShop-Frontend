@@ -169,7 +169,7 @@ function CartDropdown() {
     };
 
     try {
-      const response = await createOrder(orderData);
+      await createOrder(orderData);
 
       // If user is logged in, also clear server cart
       if (user) {
