@@ -1,14 +1,27 @@
-# Build React App
+# Stage 1: Build React App
 FROM node:22.14-alpine AS build
 WORKDIR /app
+
+# Install dependencies
 COPY package.json package-lock.json ./
 RUN npm install
+
+# Copy source code and build
 COPY . .
 RUN npm run build
 
-# Serve with Nginx
-FROM nginx:alpine
-COPY --from=build /app/build /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf 
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Stage 2: Serve static build with a lightweight web server
+FROM node:22.14-alpine
+WORKDIR /app
+
+# Install a simple static server
+RUN npm install -g serve
+
+# Copy build from previous stage
+COPY --from=build /app/build ./build
+
+# Expose port used by 'serve'
+EXPOSE 3000
+
+# Start frontend server
+CMD ["serve", "-s", "build", "-l", "3000"]
